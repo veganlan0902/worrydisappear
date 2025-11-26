@@ -22,7 +22,6 @@
 
         body {
             font-family: 'Noto Sans TC', 'Roboto', '微軟正黑體', sans-serif;
-            display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -31,7 +30,7 @@
             color: var(--text-color-dark);
             text-align: center;
             transition: background 0.5s ease-in-out;
-            overflow: hidden; 
+            padding: 40px 0; 
         }
 
         .container {
@@ -45,6 +44,8 @@
             position: relative;
             z-index: 10; 
             border: 1px solid rgba(255, 255, 255, 0.6); 
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .container:hover {
@@ -235,47 +236,922 @@
 
         <div class="footer" id="language-info"></div>
     </div>
-
+    <!-- 頁面主要內容結束後 -->
+    <div style="text-align: center; margin-top: 50px; padding: 20px 0; color: #555; font-size: 0.85em;">
+        <!-- 注意: 這裡的 id 必須與 JS 中操作的 id 相符 -->
+        <p id="blogger-text"></p>
+    </div>
     <script>
         // 1. **優化後的 i18n 資料結構**：將固定界面文案和法語資料庫分離
         
         // A. 界面文案翻譯 (Translations)
         const translations = {
             'zh-TW': {
-                langName: "繁體中文",
                 title: "煩惱消散器",
-                instructionText: "請在下方寫下您當前的煩惱、疑惑或想放下的事情：",
-                inputPlaceholder: "例如：我擔心專案會來不及完成，這讓我夜不能寐。",
-                buttonText: "✨ 讓煩惱煙消雲散！ ✨",
+                instructionText: "寫下您想放下的煩惱，準備好讓它在這裡煙消雲散：",
+                inputPlaceholder: "例如：工作壓力好大，讓我無法安心入眠...。",
+                buttonText: "✨ 放手吧！讓煩惱煙消雲散 ！ ✨",
                 dissolveMessage: "您的煩惱正在化為塵埃...",
                 proverbIntro: "⭐ 既然放下，便聽聽祖師的智慧之語：",
+                blogger: "【Joy的慢日子】",
             },
             'en': {
-                langName: "English",
                 title: "Worry Dissolver",
                 instructionText: "Write down your current worry, doubt, or something you wish to let go of below:",
                 inputPlaceholder: "E.g., I'm worried about not finishing the project on time, it keeps me awake at night.",
                 buttonText: "✨ Let My Worries Dissolve! ✨",
                 dissolveMessage: "Your worries are turning into dust...",
                 proverbIntro: "⭐ Now that you've let go, listen to the wisdom of the masters:",
+                blogger: "【The Slow Joy】"
             }
         };
 
-        // B. 法語資料庫 (Proverbs Data) - 不再重複固定的界面文案
+        // B. 法語資料庫 (Proverbs Data) 
         const proverbsData = [
             { 
-                zh: "境是道場，辱罵是真經。", 
+                zh: "要注意自己的心，要的是內心裡面生歡喜，不要因外面環境好而歡喜，要照顧自己的心，不要注意外面的境界，要修到我沒有怎麼祥", 
+                zh_en: "One must be mindful of one's own mind. The joy we seek should arise internally; do not rejoice merely because the external environment is favorable. Tend to your own mind, pay no attention to external circumstances, and strive to reach a state where you are unaffected.",
                 source: "廣欽老和尚", 
-                explanation_zh: "逆境與惡言都是修行的機會，應視為磨練心性的珍寶。",
-                explanation_en: "Adversity and harsh words are opportunities for practice, and should be regarded as treasures that temper the mind."
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "修行應從自心下手，追求內在恆常的清淨與歡喜，而不是依賴變動不定的外在環境。專注於心性修養，自然能達到不為外境所動的境界。",
+                explanation_en: "Practice should begin with the mind, seeking inner, lasting purity and joy, rather than depending on unstable external circumstances. By focusing on cultivating the mind, one naturally reaches a state where they are undisturbed by the external world."
             },
             { 
-                zh: "修行就是在修我們這忍耐性。", 
+                zh: "有功夫的人，耳朵不聽人的是非，眼睛不看人的善惡，人家譭謗我們，罵我們惡人善人，都當做沒聽到、沒看到，收攝六根不外馳。只有那些沒功夫的人，才整天窺伺他人的是非，斤斤計較。", 
+                zh_en: "A true practitioner is one whose ears do not listen to others' rights and wrongs, and whose eyes do not perceive others' good and evil. When others slander us, calling us good or bad, we act as if we neither heard nor saw it, restraining the six sense organs from running outside. Only those without spiritual attainment spend their days prying into others' faults and being overly contentious.",
                 source: "廣欽老和尚", 
-                explanation_zh: "所有順逆境都是在磨練忍辱波羅蜜的道場，能忍才能進步。",
-                explanation_en: "All favorable and adverse situations are a practice ground for cultivating *kshanti-paramita* (patience); only by enduring can we progress."
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "真正的修行，在於守護自己的六根（眼、耳、鼻、舌、身、意），不讓它們追逐外在的境界和是非。能做到不聞、不見、不動心，才能專注於內在的修持，否則就是被習氣所牽引的凡夫。",
+                explanation_en: "Genuine practice lies in guarding one's six sense organs (eyes, ears, nose, tongue, body, mind) and preventing them from chasing external circumstances and gossip. Only by achieving non-hearing, non-seeing, and an unmoving mind can one focus on inner cultivation; otherwise, they are just ordinary beings led astray by karmic habits.",
             },
-            // 如果您有 100 句法語，只需在這個列表中增加 98 個物件即可，無需重複界面文案。
+            { 
+                zh: "修行就是在修我們這忍耐性，修這種種逆境，凡事要能忍才是修行。舒適順意的境界有什麼可修？就是要在橫逆的環境去磨、去修，萬般事總要順別人意思，事事忍辱，最後終會有好處，如果再分個我是他非，煩惱就惹上來了。", 
+                zh_en: "Spiritual practice is about cultivating our patience and refining ourselves amidst all types of adversity; true practice is being able to endure everything. What is there to cultivate in comfortable and pleasant circumstances? We must grind and cultivate ourselves in unfavorable conditions. In all matters, one should strive to accommodate others' wishes and endure all things; ultimately, there will be great benefit. If you insist on distinguishing between 'my right and their wrong,' worries will inevitably arise.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "修行並非尋求安逸，而是在逆境中鍛鍊心性。真正的功夫體現在面對橫逆時的忍耐與放下自我。若能放下『我對他錯』的分別心，順從他人，事事忍辱，便能斷除煩惱的根源，獲得修行上的進益。",
+                explanation_en: "Practice is not about seeking comfort, but about tempering the mind amidst adversity. True mastery is shown through patience and self-abnegation when facing hardships. If one can let go of the discrimination between 'my right and their wrong,' accommodate others, and endure everything, they can cut off the root of worries and achieve spiritual progress.",
+            },
+            { 
+                zh: "忍辱是修行之本，戒中也以忍辱為第一道，忍辱是最大福德之處，能行忍的人，福報最大，也增加定力且消業障、開啟智慧。", 
+                zh_en: "Patience and endurance (Kshanti) are the foundation of spiritual practice, and within the precepts, patience is considered the foremost path. Patience is the source of the greatest merits and blessings. Those who practice patience will receive the greatest rewards, increase their concentration (Samadhi), eliminate karmic obstacles, and awaken wisdom.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "這句話說明**忍耐和包容**是所有人生修養中，最基礎也最有力量的一種。能夠忍受委屈、忍住脾氣的人，反而會累積最大的**好運和福氣**。同時，忍耐能讓你的心更安定、更專注，就像清除了過去的壞影響一樣，最終讓你更有智慧去判斷事情。",
+                explanation_en: "This statement explains that **patience and tolerance** are the most fundamental and powerful forms of self-cultivation in life. Those who can endure grievances and control their temper will, surprisingly, accumulate the greatest **good fortune and blessings**. At the same time, patience makes your mind more stable and focused, helping you clear away past negative influences, ultimately making you wiser in judging situations."
+            },
+            { 
+                zh: "忍辱波羅蜜，不要說我要忍辱，亦不是感覺自己在忍辱，或壓抑自己，這還有相，而是對境不覺得，這才叫做忍辱。如人家罵你時，你不覺得人家在罵你。", 
+                zh_en: "For *Kshanti-paramita* (Patience and Endurance), one should neither say 'I am practicing patience' nor feel like they are enduring or repressing themselves; that still involves attachment to a concept. True patience is achieved when one faces the situation without even noticing it. For example, when someone scolds you, you do not perceive yourself as being scolded.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "真正的**高層次的忍耐**，不是心裡有氣卻假裝沒事（這樣還是算在『忍』）。它要求我們的心性要修養到極致，當別人批評或傷害你時，你不會覺得有一個『我』被罵了，所以心裡**根本沒有被冒犯的感覺**。這是一種全然的放下，自然就不會產生任何煩惱。",
+                explanation_en: "The **highest level of patience** is not about having internal anger and then pretending to be fine (that's still 'enduring'). It requires profound inner cultivation: when someone criticizes or harms you, you don't feel like there is a 'self' being scolded, so your heart **simply doesn't register the offense**. This is a complete state of letting go, which naturally prevents any worries from arising."
+            },
+            { 
+                zh: "不講究吃和穿，只要粗衣淡飯，能御寒、能填飽肚子即可。", 
+                zh_en: "Do not be particular about food and clothing; simple attire and plain food are sufficient, as long as they provide warmth and satisfy hunger.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "教導我們要知足常樂，修行人應當淡泊物質享受，將精力專注於內心修養。粗衣淡飯只要能滿足基本生存所需，便已足夠，無需追逐奢華。",
+                explanation_en: "This teaching instructs us to find joy in contentment. A practitioner should be indifferent to material pleasures, focusing their energy on inner cultivation. Simple food and clothing are sufficient as long as they meet basic needs for survival, making the pursuit of luxury unnecessary.",
+            },
+            { 
+                zh: "不要太惜身，生病時不要去理它，這是一種考驗，理了它就被考倒。遇到病痛時，更應體會出人生無常，難免生老病死苦，更應加倍努力修行。", 
+                zh_en: "Do not be overly attached to the body; when sickness arises, do not dwell on it. It is a form of trial, and if you fixate on it, you will fail the test. When facing pain and illness, you should realize the impermanence of life, which is inevitably subjected to the suffering of birth, aging, sickness, and death, and thus redouble your efforts in practice.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "這段話教導我們，不要過度**執著或擔心自己的身體**。生病時，不要只是沉浸在痛苦和抱怨中。要把病痛當作一種**提醒和考驗**：提醒你身體是暫時的，人生難免會經歷生老病死。面對它，反而應該更積極地去修養心性，才能從根本上超越這些身體上的痛苦。",
+                explanation_en: "This passage teaches us not to be overly **attached to or worried about our physical body**. When sickness comes, don't just wallow in pain and complaint. Instead, view the illness as a **reminder and a test**: it reminds you that the body is temporary and that life inevitably involves the suffering of birth, aging, sickness, and death. Facing it should spur you to actively cultivate your mind even more, allowing you to fundamentally transcend these physical sufferings."
+            },
+            { 
+                zh: "起煩惱時，不要和這個說那個說，說來說去惹是非，最好多禮佛解煩惱。", 
+                zh_en: "When afflictions arise, do not speak of them to this person or that person, as excessive talking only invites further trouble and gossip. The best approach is to frequently perform prostrations to the Buddha (Li Fo) to resolve the afflictions.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "煩惱生起時，若向他人傾訴或評論，很容易引發是非，使煩惱加重並造口業。正確的方法是『攝心不外馳』，透過禮佛等用功方式，將心念集中於清淨處，將外在的煩惱轉化為內在的願力。",
+                explanation_en: "When afflictions arise, speaking to others or gossiping about them often leads to trouble, deepening the affliction and creating negative verbal karma. The correct method is to 'reign in the mind and not let it run outside.' By practicing methods like bowing to the Buddha, one concentrates the mind on purity and transforms external worries into inner resolve.",
+            },
+            { 
+                zh: "身體就像房子一樣會壞的，即使再怎麼修補，還是有破綻，我們要將這假體放下，不要太愛惜它，畢竟它是幻化的，但我們要好好利用它修行。", 
+                zh_en: "The body is like a house that will inevitably decay; no matter how much you repair it, flaws will remain. We must let go of this temporary form and not overly cherish it, as it is ultimately illusory, but we must utilize it well for spiritual practice.",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "此句強調身體是無常且不淨的『假體』。不應執著於對身體的愛惜和保養，以免徒增煩惱。真正的智慧是認清身體的虛妄本質，並利用這個難得的工具來精進修持，以證得永恆的法身。",
+                explanation_en: "This statement emphasizes that the body is an impermanent and impure 'temporary form.' One should not be attached to cherishing and maintaining the body, which only causes more affliction. True wisdom lies in recognizing the body's illusory nature and using this precious tool to diligently practice and attain the eternal Dharma Body.",
+            },
+            { 
+                zh: "我們這假體難免有病苦，但這屬小病，有妄想貪嗔癡才是大病，有妄想，我們還要繼續輪回，生死就不能了，為了保持臨終的正念，我們平常就要多服“阿彌陀佛”的藥，否則死將何去?", 
+                zh_en: "Our temporary body is inevitably prone to sickness and pain, but this is a minor illness. The great illness lies in delusions, greed, hatred, and ignorance. With delusions, we are bound to continue reincarnation, unable to attain liberation from birth and death. To maintain right mindfulness at the time of death, we must regularly 'take the medicine of Amitābha Buddha,' otherwise, where will we go after death?",
+                source: "廣欽老和尚", 
+                source_en: "Venerable Master Guang Qin",
+                explanation_zh: "此句指出，身體的病痛是無常現象，屬於小苦。真正的生死大患是內心的貪、瞋、癡等妄想煩惱，它們是輪迴的根本。因此，應當將精力放在用功念佛，以『阿彌陀佛』聖號來對治妄念，確保臨終時能保持正念，得以往生淨土，了脫生死。",
+                explanation_en: "This statement highlights that physical pain is a minor suffering due to impermanence. The true, great suffering of life and death lies in internal delusions like greed, hatred, and ignorance, which are the root of reincarnation. Therefore, one should focus their effort on reciting the Buddha's name, using the sacred name of 'Amitābha Buddha' as medicine against delusion, to ensure right mindfulness at the time of death and attain rebirth in the Pure Land, thereby ending the cycle of suffering.",
+            },
+            //金剛經
+            { 
+                zh: "應無所住而生其心。", 
+                zh_en: "One should produce a mind that is nowhere abiding.",
+                source: "《金剛經》", 
+                source_en: "The Diamond Sutra (Vajracchedikā Prajñāpāramitā Sūtra)",
+                explanation_zh: "此句是《金剛經》的核心教誨。心不應執著於任何事物、概念、功德或境界（『無所住』），而應在不執著的基礎上，生起清淨、廣大、利他的菩提心（『生其心』）。這是一種沒有執著的行為和心念。",
+                explanation_en: "This is the core teaching of the Diamond Sutra. The mind should not be attached to any object, concept, merit, or state ('nowhere abiding'). On the basis of non-attachment, one should give rise to the pure, vast, and altruistic Bodhi-mind ('produce a mind'). This denotes action and mindset without attachment.",
+            },
+            { 
+                zh: "一切有為法，如夢幻泡影。", 
+                zh_en: "All conditioned phenomena are like a dream, an illusion, a bubble, and a shadow.",
+                source: "《金剛經》", 
+                source_en: "The Diamond Sutra (Vajracchedikā Prajñāpāramitā Sūtra)",
+                explanation_zh: "『有為法』指所有因緣條件聚合而產生的現象和事物，包括我們的身體、情緒、世界萬物。這句話是提醒我們，這些事物本質上是虛妄不實的，應視為鏡花水月，不要執著於它的真實性。",
+                explanation_en: "'Conditioned phenomena' refers to all things and phenomena created by various contributing factors, including our body, emotions, and the entire world. This saying reminds us that these things are essentially illusory and unreal, and should be viewed as transient reflections, without clinging to their substantial reality.",
+            },
+            { //聖嚴法師
+                zh: "面對它、接受它、處理它、放下它。", 
+                zh_en: "Face it, accept it, deal with it, let go of it.",
+                source: "聖嚴法師", 
+                source_en: "Venerable Master Sheng Yen",
+                explanation_zh: "此四句箴言是聖嚴法師指導眾生處理煩惱、解決困境的實用方法論。強調在煩惱面前不逃避（面對）、不抗拒（接受），用智慧和行動去解決（處理），最終才能從執著中獲得真正的自由（放下）。",
+                explanation_en: "These four mottos are Venerable Master Sheng Yen's practical methodology for guiding people to handle afflictions and resolve difficulties. It emphasizes not avoiding problems (Face it), not resisting them (Accept it), actively solving them with wisdom and action (Deal with it), and finally gaining true freedom from attachment (Let go of it).",
+            },
+            { 
+                zh: "一切唯心造。", 
+                zh_en: "Everything is created by the mind alone.",
+                source: "《華嚴經》", 
+                source_en: "The Avatamsaka Sutra (Flower Garland Sutra)",
+                explanation_zh: "此句是佛法最根本的教義之一。它指出世間所有的現象、境界，包括六道輪迴和涅槃解脫，都不是獨立於心識而存在的，而是由我們的心念、業力、分別執著所變現和創造出來的。因此，轉變外境要從轉變自心開始。",
+                explanation_en: "This is one of the fundamental doctrines of Buddhism. It points out that all worldly phenomena and states, including the cycle of reincarnation and the liberation of Nirvana, do not exist independently of consciousness, but are manifested and created by our own thoughts, karma, and discriminative attachments. Therefore, transforming the external world must begin with transforming one's own mind.",
+            },
+            { 
+                zh: "積善之家，必有餘慶；積不善之家，必有餘殃。", 
+                zh_en: "The family that accumulates good deeds is sure to have superabundant blessings; the family that accumulates bad deeds is sure to have superabundant misfortunes.",
+                source: "《易經》", 
+                source_en: "I Ching (Book of Changes)",
+                explanation_zh: "此句出自儒家經典，強調因果報應不只影響個人，更會綿延及於後代。長久行善的家庭，必然會為後代子孫留下福澤與慶賀；反之，若持續作惡，則會遺留災禍給後人。",
+                explanation_en: "Originating from the Confucian classic, this statement emphasizes that the law of cause and effect (karma) extends beyond the individual to their descendants. A family that consistently performs good deeds will surely leave a legacy of blessings and auspiciousness for future generations; conversely, a family that persists in wrongdoing will leave behind calamities for their posterity.",
+            },
+            { 
+                zh: "積德不積財。", 
+                zh_en: "Accumulate virtue, not wealth.",
+                source: "《道德經》", 
+                source_en: "Dao De Jing (Moral Analogy)",
+                explanation_zh: "此句強調人生的重心應是累積善行與德行，而非追求物質財富的囤積。德行是永恆的、能帶來福報的資產，而財富是短暫且帶不走的。這與道家『知足常樂、貴德輕物』的思想相符。",
+                explanation_en: "This maxim emphasizes that the focus of life should be on accumulating good deeds and virtue, rather than hoarding material wealth. Virtue is a permanent asset that brings blessings, while wealth is fleeting and cannot be taken with us. This aligns with the Daoist idea of 'knowing contentment and valuing virtue over material things.'",
+            },
+            //弘一大師
+            { 
+                zh: "處逆境，必須用開拓法。處順境，心要用收斂法。", 
+                zh_en: "When encountering adversity, one must utilize the method of expansion. When living in favorable circumstances, the mind must employ the method of restraint.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "此句是弘一大師的處世與修心哲學：處於逆境時，心量要『開拓』，不被困境侷限，用更廣大的胸襟去包容和化解；處於順境時，心念要『收斂』，警惕不生驕慢、不貪著享受，保持內心的清醒與簡樸，以免福報消退。",
+                explanation_en: "This is Venerable Master Hong Yi's philosophy on living and cultivating the mind: When in adversity, the mind must 'expand' to prevent being limited by the difficulty, embracing it with a broader perspective for resolution. When in favorable conditions, the mind must 'restrain' itself, guarding against arrogance and attachment to enjoyment, maintaining inner clarity and simplicity to prevent the dissipation of blessings.",
+            },
+            { 
+                zh: "以虛養心，以德養身，以仁養天下萬物。以道德養天下萬世。", 
+                zh_en: "Cultivate the mind with emptiness (xu), nourish the body with virtue (de), and care for all beings under heaven with benevolence (ren). Nourish the world for ten thousand generations with morality and virtue (dao-de).",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "強調修養的層次：以清淨無執的心態涵養心靈；以道德行為滋養身體；並以廣大的慈悲心對待萬物。",
+                explanation_en: "Emphasizes the hierarchy of cultivation: nourish the spirit with a clear, non-attached mind; sustain the body with moral conduct; and treat all beings with broad compassion."
+            },
+            { 
+                zh: "氣，忌盛。心，忌滿。才，忌露。", 
+                zh_en: "Energy, beware of exuberance. Mind, beware of complacency. Talent, beware of exposure.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "處世三戒：脾氣不要過於剛烈，心態不要自滿傲慢，才能不要輕易顯露，以防招來災禍。",
+                explanation_en: "Three warnings for life: avoid strong temper, guard against arrogance and complacency, and refrain from easily displaying talent to prevent inviting misfortune."
+            },
+            { 
+                zh: "自處超然，處人藹然。無事澄然，有事斬然。得意淡然，失意泰然。", 
+                zh_en: "Be detached when managing oneself, be amiable when dealing with others. Be serene when idle, be decisive when engaged. Be indifferent when successful, be composed when failing.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "這六然是修身處世的準則：對待自己要超脫灑脫；對待別人要和藹可親；無事時保持內心清澈；有事時果斷處理；成功時保持淡然；失意時保持鎮定。",
+                explanation_en: "These six principles are codes for self-cultivation: be detached from self; be amiable to others; maintain inner clarity when idle; be decisive when active; remain indifferent to success; and stay composed in failure."
+            },
+            { 
+                zh: "以淡字交友，以聾字止謗，以刻字責已，以弱字禦侮。居安，慮危。處治，思亂。", 
+                zh_en: "Use 'indifference' to make friends, 'deafness' to stop slander, 'severity' to discipline oneself, and 'gentleness' to ward off insult. When in peace, contemplate danger. When in order, contemplate chaos.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "交友要淡泊不熱絡；面對毀謗要當作沒聽到；要求自己要嚴苛；以柔和的態度化解衝突。並時刻保持憂患意識。",
+                explanation_en: "Friendships should be maintained with indifference; treat slander as if deaf; be severe in self-discipline; use gentle attitudes to resolve conflict. Always maintain an awareness of potential danger."
+            },
+            { 
+                zh: "不為外物所動之謂靜。不為外物所實之謂虛。", 
+                zh_en: "Not being moved by external things is called stillness (jing). Not being filled by external things is called emptiness (xu).",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "定義了心靈修養中『靜』和『虛』的境界：真正的靜是心不隨外境遷流；真正的虛是心不被外物佔據填滿，保持清淨。",
+                explanation_en: "Defines the states of 'stillness' and 'emptiness' in spiritual cultivation: true stillness means the mind is not driven by external things; true emptiness means the mind is not filled up by external things, maintaining purity."
+            },
+            { 
+                zh: "意粗，性躁，一事無成。心平，氣和，千祥駢集。", 
+                zh_en: "If intentions are crude and temper is irritable, nothing will be accomplished. If the mind is calm and the energy is harmonious, a thousand auspicious signs will converge.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "急躁粗糙的態度註定失敗；平和安靜的心態才能聚集福報和善緣，成就大事。",
+                explanation_en: "A hasty and crude attitude is doomed to fail; a calm and peaceful state of mind attracts blessings and good affinities, leading to great achievements."
+            },
+            { 
+                zh: "公，生明。誠，生明。從容，生明。", 
+                zh_en: "Impartiality produces clarity. Sincerity produces clarity. Composure produces clarity.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "三個產生智慧（明）的根本：公正無私、真誠不欺、從容不迫。",
+                explanation_en: "Three fundamentals for producing wisdom (clarity): impartiality, sincerity, and composure."
+            },
+            { 
+                zh: "公生明者，不蔽於私也。誠生明者，不雜以偽也。從容生明者，不淆於惑也。", 
+                zh_en: "Impartiality produces clarity because it is not obscured by self-interest. Sincerity produces clarity because it is not mixed with pretense. Composure produces clarity because it is not confused by delusion.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "進一步闡釋了『公、誠、從容』產生智慧的原理：公正則無私心遮蔽；誠懇則不摻雜虛偽；從容則不受困惑擾亂。",
+                explanation_en: "Further explains the mechanism of how impartiality, sincerity, and composure produce clarity: impartiality eliminates self-interest; sincerity removes pretense; and composure prevents confusion."
+            },
+            { 
+                zh: "心志要苦，意趣要樂，氣度要宏，言動要謹。", 
+                zh_en: "The will must be hardy, the sentiment must be joyful, the spirit must be vast, and the speech and action must be cautious.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "修養四要：磨練心志不怕艱苦；保持內心意趣的喜悅；胸懷要寬宏大量；言行要謹慎小心。",
+                explanation_en: "Four essentials of cultivation: train the will to endure hardships; maintain inner joy; possess a vast and magnanimous spirit; and be cautious in speech and action."
+            },
+            { 
+                zh: "事能常足，心常愜。人到無求，品自高。", 
+                zh_en: "If one can often be content with things, the mind will always be satisfied. When a person reaches a state of having no demands, their character naturally becomes lofty.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "知足常樂的處世觀。外在事情常覺滿足，心靈就會安樂；內心無所追求，則品德自然高尚。",
+                explanation_en: "The philosophy of finding joy in contentment. If one is often satisfied with external matters, the mind will be peaceful; if the heart has no demands, the character naturally becomes noble."
+            },
+            { 
+                zh: "靜能制動，沉能制浮，寬能制褊，緩能制急。", 
+                zh_en: "Stillness can control movement, sinking can control floating, breadth can control narrowness, and slowness can control urgency.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "以四對反義詞闡述修心以靜制動的原則。強調內在定力、沉著、寬容、緩慢的優勢。",
+                explanation_en: "Uses four pairs of antonyms to explain the principle of using stillness to manage motion in mind cultivation, emphasizing the advantages of inner composure, stability, tolerance, and patience."
+            },
+            { 
+                zh: "人好剛我以柔勝之，人好術我以誠感之。", 
+                zh_en: "If others prefer rigidity, I use gentleness to overcome them; if others prefer cunning, I use sincerity to move them.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "待人處世的最高策略：以柔克剛，以誠化偽。用自身的德行去感化和超越他人的缺點。",
+                explanation_en: "The highest strategy for dealing with people: overcoming hardness with gentleness, and transforming cunning with sincerity. Use one's own virtue to influence and surpass the shortcomings of others."
+            },
+            { 
+                zh: "處事大忌急躁。急躁則自顧不暇，何暇治事？", 
+                zh_en: "Haste and impatience are the great taboos in managing affairs. If one is hasty, they cannot even take care of themselves; how can they manage things?",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "告誡為人處事要避免急躁。心急不僅無法有效處理事情，反而會讓自己陷入混亂。",
+                explanation_en: "A warning against haste and impatience in dealing with matters. Rushing not only prevents effective management but also leads to self-confusion."
+            },
+            { 
+                zh: "必有容，德乃大。必有忍，事乃濟。", 
+                zh_en: "One must have tolerance, and virtue will be great. One must have endurance, and affairs will be accomplished.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "強調『容』和『忍』對個人成就的重要性。有容人之量，品德方能廣大；能忍辱負重，事情才能成功。",
+                explanation_en: "Emphasizes the importance of 'tolerance' and 'endurance' for personal achievement. Only with tolerance can virtue be vast; only with endurance can affairs be successful."
+            },
+            { 
+                zh: "知足常樂，終生不恥。知止常止，終生不辱。", 
+                zh_en: "Know contentment and you will always be happy, never feeling shame in your life. Know where to stop and you will always be safe, never suffering disgrace in your life.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "知足與知止是避免災禍的智慧。常常滿足就不會因貪求而感到羞恥；知道適時收手就不會因過度而遭受屈辱。",
+                explanation_en: "Contentment and knowing when to stop are the wisdom to avoid disaster. Being content prevents shame from excessive desire; knowing when to stop prevents disgrace from overstepping boundaries."
+            },
+            { 
+                zh: "謙退是保身第一法，安祥是處事第一法，涵容是待人第一法，恬淡是養心第一法。", 
+                zh_en: "Humility and retreat are the primary method for self-preservation, peaceful composure is the primary method for handling affairs, generous tolerance is the primary method for dealing with others, and tranquil indifference is the primary method for cultivating the mind.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "提出了保身、處事、待人、養心的四個最重要原則。強調內斂、平靜、包容和淡泊的重要性。",
+                explanation_en: "Proposes the four most important principles for self-preservation, management, interaction, and mind cultivation, emphasizing the importance of modesty, calmness, tolerance, and indifference."
+            },
+            { 
+                zh: "心術，以光明篤實為第一。容貌，以正大老成為第一。言語，以簡重真切為第一。平生無一事可瞞人，此是大快。", 
+                zh_en: "The mind should prioritize being bright and earnest. The appearance should prioritize being upright and mature. Speech should prioritize being concise, weighty, and sincere. To have nothing to hide from others throughout one's life—this is the greatest joy.",
+                source: "弘一大師", 
+                source_en: "Venerable Master Hong Yi",
+                explanation_zh: "總結了心性、外表、言談的修養標準，最終指出內心坦蕩、無事可隱瞞於人，是人生最暢快的事。",
+                explanation_en: "Summarizes the standards for cultivating the mind, appearance, and speech, concluding that having a clear conscience and nothing to hide from others is the greatest joy in life."
+            },
+            // --- 印光大師系列法語 ---
+            { 
+                zh: "敦倫盡分，閑邪存誠，諸惡莫作，眾善奉行，先作世間好人，乃能進修佛法。", 
+                zh_en: "Uphold human relationships and fulfill your duties; restrain wicked desires and maintain sincerity; commit no evil and perform all good. Only by first becoming a good person in the world can one then progress in Buddhist practice.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "這段話強調，想要修養心性或學習佛法，**最根本的基礎是做一個社會上的好人**。這要求我們：一要**盡責**，做好自己的本分；二要**真誠**，杜絕壞念頭、保持真心；三要**行善**，不做壞事，多做好事。只有先具備了良好的品德，才能在心靈成長的道路上真正有所進步。",
+                explanation_en: "This statement emphasizes that the **most fundamental basis** for cultivating one's mind or studying Buddhism is to **be a good person in society**. This requires us to: first, be **responsible** and fulfill our duties; second, be **sincere**, restrain bad intentions, and maintain an honest heart; and third, **do good**, refrain from evil, and perform kind acts. Only by establishing good character first can one truly make progress on the path of spiritual growth."
+            },
+            { 
+                zh: "人生欲得無病健康，必須極力節欲。", 
+                zh_en: "If one desires a life free from sickness and full of health, they must strive to restrain their desires to the utmost.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "指出健康長壽的根本在於節制慾望。過度的物質追求和放縱會耗損精氣神，是導致疾病的根源。",
+                explanation_en: "Points out that the root of health and longevity lies in controlling desires. Excessive material pursuit and indulgence deplete one's vital energy and are the root causes of sickness."
+            },
+            { 
+                zh: "倘外現修持之相，而內無真實之心，則是假善人。假善人何能得真利益乎？", 
+                zh_en: "If one exhibits the appearance of cultivation outwardly but lacks a genuine heart inwardly, they are a false virtuous person. How can a false virtuous person attain true benefits?",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "告誡修行人要警惕虛偽和形式主義。修行重在心地的真實用功，若徒具外表而不具備真誠的內心，則無法獲得佛法的實益。",
+                explanation_en: "Warns practitioners against hypocrisy and formalism. True practice lies in genuine inner effort; if one only possesses the outward appearance without a sincere heart, they cannot gain the real benefits of the Dharma."
+            },
+            { 
+                zh: "重重災病，總由宿業深而現行不謹所致。", 
+                zh_en: "Severe and repeated disasters and illnesses are always caused by deep accumulated karma and carelessness in present conduct.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "以因果觀點解釋人生病苦。多重災難和疾病，是過去世的惡業深重，加上現世行為不謹慎、不檢點所共同導致的果報。",
+                explanation_en: "Explains suffering and illness from the perspective of cause and effect. Multiple disasters and diseases are results stemming from deep negative karma accumulated in past lives combined with careless and imprudent conduct in the present life."
+            },
+            { 
+                zh: "吾人出家為佛弟子，固當以佛之平等大慈大悲為志事，不可仍帶在家一種憍慢自大、藐視一切、任意作為、不依舊章等派頭。", 
+                zh_en: "As ordained Buddhist disciples, we should naturally take the Buddha's boundless compassion and great equality as our aspiration. We must not retain the worldly attitude of arrogance, self-importance, contempt for all, acting willfully, or disregarding established rules.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "針對出家眾的警示。強調佛弟子應以佛的慈悲平等心為目標，放下俗家的驕慢習氣，必須依循戒律和舊規，不可任意妄為。",
+                explanation_en: "A warning directed at the ordained community. It emphasizes that Buddhist disciples should aim for the Buddha's boundless compassion and equality, abandon the worldly habit of arrogance, and must adhere to precepts and established rules, not acting arbitrarily."
+            },
+            { 
+                zh: "欲得佛法實益，當向恭敬中求。", 
+                zh_en: "If you wish to obtain the substantial benefits of the Buddha Dharma, you must seek them through reverence.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "指出學佛的入門方法。佛法的受用程度與自身的恭敬心成正比，唯有發自內心的恭敬，才能與佛菩薩、經典、善知識感應道交，從而獲得真正的利益。",
+                explanation_en: "Points out the entry point for learning Buddhism. The degree of benefit gained from the Dharma is proportional to one's own sense of reverence; only with heartfelt respect can one genuinely connect with the Buddhas, Sutras, and good mentors to receive true benefit."
+            },
+            { 
+                zh: "事事以誠為本，念念常省自心。", 
+                zh_en: "In all matters, take sincerity as the foundation; in every thought, constantly examine your own mind.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "為人處世和修心養性的總綱領。在與外境互動時（事事），要以真誠為原則；在內心起念時（念念），要時常反省檢討自己的過失。",
+                explanation_en: "The guiding principle for daily life and mind cultivation. In interacting with the external world (all matters), sincerity should be the foundation; in generating inner thoughts (every thought), one should constantly examine and review their own faults."
+            },
+            { 
+                zh: "何謂苦因？貪、瞋、癡三毒是。何謂善因？濟物利人是。", 
+                zh_en: "What are the causes of suffering? The three poisons of greed, hatred, and delusion. What are the causes of goodness? Benefiting beings and aiding others.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "簡明扼要地闡述了佛教的因果核心：所有痛苦的根源在於內心的三毒煩惱；所有善樂的根源則在於廣行濟世利人的善行。",
+                explanation_en: "Concise explanation of the core Buddhist concept of cause and effect: the root of all suffering is the three internal poisons; the root of all happiness and goodness lies in extensively performing good deeds that benefit and aid others."
+            },
+            { 
+                zh: "念佛根本道理，是要人生信發願，求生西方，了脫生死。不可只發求世間富樂，不求西方。", 
+                zh_en: "The fundamental principle of Nianfo (Buddha-name recitation) is for one to develop faith and vow to seek rebirth in the Western Pure Land, thereby ending the cycle of birth and death. One must not only aspire for worldly wealth and happiness without seeking the Pure Land.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "強調念佛法門的**真實目的**。念佛的重點是『信、願、行』，目標是了脫生死。若只將念佛當作求取現世福報的手段，便是將摩尼寶珠換成了糖果。",
+                explanation_en: "Emphasizes the **true purpose** of Nianfo practice. The focus of Nianfo is 'Faith, Vow, and Practice,' with the goal of liberation from the cycle of birth and death. If one treats Nianfo merely as a means to gain worldly blessings, they mistake the Mani jewel for simple candy."
+            },
+            { 
+                zh: "當以至誠念佛，為消除業障、增長福慧之道。", 
+                zh_en: "One should sincerely recite the Buddha's name as the path to eliminate karmic obstacles and increase both blessings and wisdom.",
+                source: "印光大師", 
+                source_en: "Venerable Master Yin Guang",
+                explanation_zh: "指導念佛的具體功效。以極其真誠的心來念佛，便是消除業障、累積福德和增長智慧的最直接方法。",
+                explanation_en: "Directly instructs on the efficacy of Nianfo. Reciting the Buddha's name with utmost sincerity is the most direct way to eliminate karmic obstacles, accumulate merit, and increase wisdom."
+            },
+            // --- 太上感應篇系列格言 ---
+            { 
+                zh: "禍福無門，唯人自招；善惡之報，如影隨形。", 
+                zh_en: "Misfortune and fortune have no fixed entrance; they are invited solely by the individual. The recompense for good and evil follows a person like a shadow.",
+                source: "太上感應篇", 
+                source_en: "Taishang Ganying Pian (The Treatise of the Exalted One on Response and Retribution)",
+                explanation_zh: "強調命運的主導權在於自己。所有的吉凶禍福，都不是天意註定，而是個人行為（善或惡）所招引來的。善惡的報應是必然且緊密跟隨的，如同影子追隨身體。",
+                explanation_en: "Emphasizes that fate is determined by oneself. All fortunes and misfortunes are not predetermined by heaven but are invited by the individual's actions (good or evil). Retribution for good and evil is inevitable and follows closely, like a shadow following the body."
+            },
+            { 
+                zh: "夫心起於善，善雖未為，而吉神已隨之。或心起於惡，惡雖未為，而凶神已隨之。", 
+                zh_en: "If the mind initiates goodness, although the good deed has not yet been performed, auspicious spirits already follow. If the mind initiates evil, although the evil deed has not yet been performed, malicious spirits already follow.",
+                source: "太上感應篇", 
+                source_en: "Taishang Ganying Pian",
+                explanation_zh: "強調『起心動念』的重要性。福禍的萌芽從心念開始，即使善行或惡行尚未實踐，掌管吉凶的神祇已經開始記錄和隨護，告誡我們務必謹慎心念。",
+                explanation_en: "Highlights the importance of 'the first thought.' The seeds of fortune or calamity begin with the mind; even before the action is performed, the relevant spirits already begin to record and attend, urging caution regarding one's intentions."
+            },
+            { 
+                zh: "是以天地有司過之神，依人所犯輕重，以奪人算。", 
+                zh_en: "Therefore, Heaven and Earth have spirits that preside over faults, and they deduct days from a person's lifespan according to the severity of the offenses committed.",
+                source: "太上感應篇", 
+                source_en: "Taishang Ganying Pian",
+                explanation_zh: "指出有神明監察世人的過錯。我們所犯的過失（特別是惡行），都會被天地記錄下來，並依據嚴重程度減去我們的壽命（算）。",
+                explanation_en: "States that there are divine beings supervising human faults. The mistakes we commit (especially evil deeds) are recorded by Heaven and Earth, and days are deducted from our lifespan (suan) based on the severity of the transgression."
+            },
+            { 
+                zh: "矜孤恤寡，敬老懷幼。", 
+                zh_en: "Be sympathetic to the orphaned and compassionate to the widowed; respect the elderly and cherish the young.",
+                source: "太上感應篇", 
+                source_en: "Taishang Ganying Pian",
+                explanation_zh: "強調社會倫理和慈悲心。這是積累大善、廣植福德的重要途徑，也是建立和諧社會的基礎。",
+                explanation_en: "Emphasizes social ethics and compassion. These actions are essential ways to accumulate great virtue and blessings, and are the foundation for building a harmonious society."
+            },
+            { 
+                zh: "務要日日知非，日日改過。一日不知非，即一日安於自是。", 
+                zh_en: "One must know their faults daily and correct their faults daily. A day without recognizing a fault is a day spent complacent in self-righteousness.",
+                source: "了凡四訓", 
+                source_en: "Liaofan's Four Lessons",
+                explanation_zh: "強調持續不斷地自我反省。改過遷善是需要每天警覺的功夫，若有一天不察覺自己的過失，就容易安於現狀，停止進步。",
+                explanation_en: "Emphasizes continuous self-reflection. Correcting faults requires daily vigilance; a day without recognizing one's mistakes can easily lead to complacency and stagnation."
+            },
+            { 
+                zh: "一切福田，不離方寸。", 
+                zh_en: "All fields of blessings (Futián) do not leave one's own mind (fangcun).",
+                source: "了凡四訓", 
+                source_en: "Liaofan's Four Lessons",
+                explanation_zh: "『方寸』指心田。這句話指出，所有福報的根源不在外境，而是在於自己的心念。心存善念，便是播種福田的開始。",
+                explanation_en: "The term 'fangcun' refers to the mind. This saying points out that the root of all blessings is not in the external environment but in one's own mind. Having kind thoughts is the beginning of planting the field of blessings."
+            },
+            { 
+                zh: "從前種種，譬如昨日死；以後種種，譬如今日生。", 
+                zh_en: "All previous mistakes are like dying yesterday; all future actions are like being born today.",
+                source: "了凡四訓", 
+                source_en: "Liaofan's Four Lessons",
+                explanation_zh: "鼓勵人革新自新、積極改命。對於過去的過錯，應當徹底放下，並從當下開始，以全新的生命態度和決心去創造未來。",
+                explanation_en: "Encourages self-renewal and actively changing one's fate. One should completely let go of past mistakes and, starting from the present moment, create the future with a brand new attitude and determination."
+            },
+            // --- 地藏經系列經句 ---
+            { 
+                zh: "閻浮眾生，起心動念，無不是業，無不是罪。", 
+                zh_en: "For the sentient beings of Jambudvīpa (this world), every thought and movement of the mind is entirely karma, entirely an offense.",
+                source: "《地藏經》", 
+                source_en: "The Kṣitigarbha Bodhisattva Pūrvapraṇidhāna Sūtra",
+                explanation_zh: "強調凡夫的『妄念相續』。指出我們身處的世間眾生，心念時刻都在造作善惡之業，即使是微小的起心動念，也離不開業力和罪垢，故需時時警覺，提起正念。",
+                explanation_en: "Emphasizes the continuous arising of deluded thoughts in ordinary beings. It points out that the minds of beings in this world constantly create good and evil karma; even the slightest thought is inextricably tied to karma and defilement, hence the need for constant vigilance and cultivating right mindfulness."
+            },
+            { 
+                zh: "地獄不空，誓不成佛；眾生度盡，方證菩提。", 
+                zh_en: "As long as the hells are not emptied, I vow not to attain Buddhahood; only when all sentient beings have been delivered will I realize Bodhi.",
+                source: "《地藏經》 (地藏菩薩誓願)", 
+                source_en: "The Kṣitigarbha Bodhisattva Pūrvapraṇidhāna Sūtra (Kṣitigarbha's Vow)",
+                explanation_zh: "地藏菩薩的宏大誓願，體現了**「悲願第一」**的精神。菩薩為了救度所有苦難眾生，甘願延遲自己的成佛時間，是所有大乘行者的榜樣。",
+                explanation_en: "Kṣitigarbha Bodhisattva's immense vow, which embodies the spirit of 'supreme compassion and vow.' The Bodhisattva willingly postpones their own Buddhahood to save all suffering beings, serving as a model for all Mahāyāna practitioners."
+            },
+            { 
+                zh: "若未來世，有諸人等，衣食不足，求者乖願，或多病疾，或多兇衰，家宅不安，眷屬分散。", 
+                zh_en: "If, in future ages, any people suffer from lack of clothing and food, their wishes being thwarted, or suffer much sickness, or much inauspicious decline, or have unrest in their homes, or their family members scattered...",
+                source: "《地藏經》", 
+                source_en: "The Kṣitigarbha Bodhisattva Pūrvapraṇidhāna Sūtra",
+                explanation_zh: "列舉了眾生在世間所受的種種苦難（貧窮、疾病、災厄、不安），藉此提醒眾生深信因果，應當藉由地藏法門來轉化業力。",
+                explanation_en: "Enumerates the various sufferings experienced by beings in the world (poverty, sickness, calamity, unrest), thereby reminding beings to deeply believe in karma and transform their negative karma through the practice of the Kṣitigarbha Dharma door."
+            },
+            { 
+                zh: "勸諸眾生，莫輕小惡，以為無罪，死後有報，纖毫受之。", 
+                zh_en: "Exhort all sentient beings not to belittle minor evils, thinking them to be without fault. After death, there is recompense; even a hair's breadth of karma is received.",
+                source: "《地藏經》", 
+                source_en: "The Kṣitigarbha Bodhisattva Pūrvapraṇidhāna Sūtra",
+                explanation_zh: "告誡眾生要『慎勿造小惡』，強調因果報應的嚴密性。即使是微小的惡業，也會帶來相應的苦報，警惕我們時時檢點身口意。",
+                explanation_en: "Warns beings to 'be cautious of creating minor evils,' emphasizing the strictness of karmic retribution. Even a tiny piece of negative karma will bring corresponding suffering, urging us to constantly examine our body, speech, and mind."
+            },
+            { 
+                zh: "若能一念稱佛，或菩薩名，一念之間，悉得解脫。", 
+                zh_en: "If one can recite the name of the Buddha or a Bodhisattva with a single thought, within that single thought, all will attain liberation.",
+                source: "《地藏經》", 
+                source_en: "The Kṣitigarbha Bodhisattva Pūrvapraṇidhāna Sūtra",
+                explanation_zh: "稱讚稱念聖號的不可思議功德。即使在極短的時間內，以至誠心稱念佛或菩薩名號，就能獲得解脫的力量，特別適用於臨終關頭。",
+                explanation_en: "Praises the inconceivable merit of reciting the sacred names. Even in an extremely short moment, sincerely reciting the name of a Buddha or Bodhisattva grants the power of liberation, especially relevant at the time of death."
+            },
+
+            // --- 普門品系列經句 ---
+            { 
+                zh: "若有眾生，多於淫欲，常念恭敬觀世音菩薩，便得離欲。", 
+                zh_en: "If there are sentient beings who have much sexual desire, constantly and reverently reciting the name of Guan Shi Yin Bodhisattva, they will be freed from that desire.",
+                source: "《普門品》", 
+                source_en: "The Universal Gate Chapter (Lotus Sutra)",
+                explanation_zh: "觀世音菩薩聞聲救苦的具體體現。對於淫慾、貪慾等強烈煩惱，只要至誠稱念菩薩名號，便能藉由菩薩的願力與功德，幫助自己轉化心念，達到離欲清淨。",
+                explanation_en: "A concrete example of Avalokiteśvara Bodhisattva's power to save beings by hearing their cries. For strong afflictions like lust and greed, sincerely reciting the Bodhisattva's name allows one to utilize the Bodhisattva's vow power and merit to transform the mind and attain purity."
+            },
+            { 
+                zh: "若有眾生，多於瞋恚，常念恭敬觀世音菩薩，便得離瞋。", 
+                zh_en: "If there are sentient beings who have much hatred and anger, constantly and reverently reciting the name of Guan Shi Yin Bodhisattva, they will be freed from that hatred.",
+                source: "《普門品》", 
+                source_en: "The Universal Gate Chapter (Lotus Sutra)",
+                explanation_zh: "指出觀世音菩薩能對治『三毒』中的瞋恚。瞋恨心生起時，專心稱念菩薩名號，能迅速熄滅心中的怒火，恢復平靜。",
+                explanation_en: "Points out Avalokiteśvara Bodhisattva's ability to cure hatred and anger, one of the 'three poisons.' When anger arises, focused recitation of the Bodhisattva's name can quickly extinguish the inner fire and restore peace."
+            },
+            { 
+                zh: "若有眾生，多於愚癡，常念恭敬觀世音菩薩，便得離癡。", 
+                zh_en: "If there are sentient beings who have much delusion and ignorance, constantly and reverently reciting the name of Guan Shi Yin Bodhisattva, they will be freed from that delusion.",
+                source: "《普門品》", 
+                source_en: "The Universal Gate Chapter (Lotus Sutra)",
+                explanation_zh: "指出觀世音菩薩能對治『三毒』中的愚癡。稱念菩薩名號能開啟智慧，破除無明，使人明辨是非、增長正知見。",
+                explanation_en: "Points out Avalokiteśvara Bodhisattva's ability to cure delusion and ignorance, one of the 'three poisons.' Reciting the Bodhisattva's name can awaken wisdom, break through ignorance, and help one discern right from wrong and increase correct understanding."
+            },
+            { 
+                zh: "若有眾生，受諸苦惱，聞是觀世音菩薩，一心稱名，觀世音菩薩即時觀其音聲，皆得解脫。", 
+                zh_en: "If there are sentient beings who undergo various sufferings and distress, and hear of Guanshiyin Bodhisattva and wholeheartedly call the name, the Bodhisattva immediately observes their voice, and all are liberated.",
+                source: "《普門品》", 
+                source_en: "The Universal Gate Chapter (Lotus Sutra)",
+                explanation_zh: "這是**他力救度**遠離恐懼的法門。在遭遇災難、苦惱、生起恐懼時，專心稱念觀世音菩薩名號，能迅速獲得菩薩的威德力加持，解除當下的怖畏。",
+                explanation_en: "This is the Dharma door of **salvation through other-power** for dispelling fear. When encountering disaster, distress, or fear, wholeheartedly reciting the Bodhisattva's name quickly receives their power and virtue, relieving immediate terror."
+            },
+            { 
+                zh: "眾生被困厄，無量苦逼身，觀音妙智力，能救世間苦。", 
+                zh_en: "Sentient beings, besieged by distress and oppressed by measureless suffering, the Bodhisattva’s wondrous power of wisdom is able to rescue the world from its suffering.",
+                source: "《普門品》", 
+                source_en: "The Universal Gate Chapter (Lotus Sutra)",
+                explanation_zh: "讚歎觀世音菩薩以其不可思議的智慧和願力，能在眾生身處困境、遭受無盡痛苦時，即時施予援手，救拔一切世間的苦難。",
+                explanation_en: "Praises Avalokiteśvara Bodhisattva's power. With the Bodhisattva’s inconceivable wisdom and vow power, they are able to provide immediate assistance and deliver all beings from suffering when they are trapped in distress and oppressed by endless pain."
+            },
+            { 
+                zh: "慈眼視眾生，福聚海無量。", 
+                zh_en: "With compassionate eyes, observing sentient beings, the accumulation of blessings is immeasurable like the sea.",
+                source: "《普門品》", 
+                source_en: "The Universal Gate Chapter (Lotus Sutra)",
+                explanation_zh: "描寫觀世音菩薩的慈悲德相和功德。菩薩以慈悲的眼睛平等地看待一切眾生，這樣的慈悲心所累積的福德，廣大無邊，如同大海。",
+                explanation_en: "Describes the compassionate virtues and merits of Avalokiteśvara Bodhisattva. The Bodhisattva regards all beings equally with compassionate eyes; the blessings accumulated through this compassion are vast and boundless, like the ocean."
+            },
+            // --- 心經系列經句 ---
+           { 
+                zh: "色不異空，空不異色；色即是空，空即是色。", 
+                zh_en: "Form is no different from emptiness, emptiness is no different from form; form is precisely emptiness, emptiness is precisely form.",
+                source: "《心經》", 
+                source_en: "The Heart Sūtra (Prajñāpāramitā Hṛdaya Sūtra)",
+                explanation_zh: "這四句話是佛法的**核心智慧**：『色』指我們眼睛能看見的一切東西、所有現象；『空』不是指什麼都沒有，而是指這些現象都沒有永恆不變的**實體**或**主宰者**。這句話的意思是：你看見的東西（色），它的本質是會變動、不長久的（空）；而這種不長久的本質（空），並不妨礙東西的**實際存在**（色）。了解這一點，我們就不會對萬事萬物產生過度、錯誤的執著。",
+                explanation_en: "These four sentences are the **core wisdom** of the Dharma: 'Form' refers to all things and phenomena we can see; 'Emptiness' does not mean 'nothingness,' but rather that these phenomena lack an eternal, unchanging **substance** or **independent existence**. The meaning is: the things you see (form) have an essence that is constantly changing and impermanent (emptiness); and this impermanent nature (emptiness) does not prevent the **actual existence** of things (form). Understanding this prevents us from developing excessive or erroneous attachments to anything in the world."
+            },
+            { 
+                zh: "照見五蘊皆空，度一切苦厄。", 
+                zh_en: "Illuminatingly seeing that the five *skandhas* are all empty, one is thereby saved from all suffering and distress.",
+                source: "《心經》", 
+                source_en: "The Heart Sūtra",
+                explanation_zh: "這句話指出了**擺脫所有痛苦的秘訣**。它說的是，當你用智慧（照見）去徹底看清我們身心的一切組成部分——也就是我們的**身體**、所有**感受**、所有**想法**、所有**習慣**和所有**意識**（五蘊）——其實都是不斷變化、沒有一個不變的『我』在主宰時（皆空），你就能從根本上**超越所有痛苦和災難**，獲得解脫。",
+                explanation_en: "This sentence points out the **secret to eliminating all suffering**. It states that when you use wisdom (Illuminatingly seeing) to fully understand that all the components of our body and mind—namely our **physical body**, all **feelings**, all **thoughts**, all **habits**, and all **consciousness** (the Five Aggregates)—are constantly changing and not governed by an unchanging 'self' (all empty), you can fundamentally **transcend all suffering and distress** and achieve liberation."
+            },
+            { 
+                zh: "心無掛礙，無掛礙故，無有恐怖，遠離顛倒夢想。", 
+                zh_en: "The mind has no hindrance; because there is no hindrance, there is no fear, and one is far removed from inverted, delusional thinking.",
+                source: "《心經》", 
+                source_en: "The Heart Sūtra (Prajñāpāramitā Hṛdaya Sūtra)",
+                explanation_zh: "這句話告訴我們**如何達到真正的平靜**：當你的**心裡不再有任何放不下、糾結或牽掛的事物**（心無掛礙），自然就不會有任何**害怕和恐懼**（無有恐怖）。因為沒有這些負擔，你的思想就能變得清晰穩定，不會被那些**不切實際、混亂的妄想或錯誤的觀念**（顛倒夢想）所困擾。這是一種完全自由自在、內心安定的狀態。",
+                explanation_en: "This sentence tells us **how to achieve true inner peace**: When your **mind is no longer burdened by anything you are attached to, worried about, or tangled up in** (no hindrance), you naturally become free from any **fear or terror** (no fear). Because you are free from these burdens, your thoughts become clear and stable, and you are no longer troubled by those **unrealistic, chaotic delusions or mistaken ideas** (inverted, delusional thinking). This is a state of complete freedom and inner stability."
+            },             
+            { 
+                zh: "無無明，亦無無明盡；乃至無老死，亦無老死盡。", 
+                zh_en: "There is no ignorance, nor is there the cessation of ignorance; likewise, there is no aging and death, nor is there the cessation of aging and death.",
+                source: "《心經》", 
+                source_en: "The Heart Sūtra",
+                explanation_zh: "這句話是在說，當你用**最深層次的智慧**去看待世界時，會發現連那些我們視為『**煩惱的開端**』（無明，指無知、不明白真相）和『**人生的最終痛苦**』（老死）都只是暫時的現象，**沒有真實、不變的本質**。既然這些現象本身都不是固定的實體，那麼**去消滅或斷除**（盡）它們的說法也就**不成立**了。這是一種超越『有』與『無』、『生』與『滅』的極致自在狀態。",
+                explanation_en: "This sentence explains that when you look at the world with the **deepest level of wisdom**, you realize that even what we consider the **'beginning of all troubles'** (ignorance, meaning misunderstanding the truth) and the **'ultimate suffering of life'** (aging and death) are merely temporary phenomena that **lack a real, unchanging essence**. Since these phenomena are not fixed realities, the concept of **eliminating or ceasing** (cessation) them also **does not hold true**. This is an ultimate state of freedom that transcends 'existence' and 'non-existence,' 'arising' and 'ceasing'."
+            },            
+            { 
+                zh: "從癡有愛，則我病生。", 
+                zh_en: "From delusion (ignorance) arises craving (love), and thus my sickness (affliction) arises.",
+                source: "《維摩詰所說經》", 
+                source_en: "The Vimalakīrti Nirdeśa Sūtra",
+                explanation_zh: "這是維摩詰居士解釋自己**生病**的法語。他指出眾生的所有煩惱（病），都是從**無明**（癡）開始，進而產生**貪愛執著**，這才是生死輪迴的大病根源。",
+                explanation_en: "Vimalakīrti's explanation of his **sickness**. He points out that all afflictions (sickness) in sentient beings begin with **ignorance (delusion)**, which then leads to **craving and attachment**. This is the great root cause of the suffering of saṃsāra."
+            },
+            { 
+                zh: "錢財乃五家所共有。", 
+                zh_en: "Wealth is shared property belonging to five groups.",
+                source: "《大智度論》等 (五家共財)", 
+                source_en: "Treatise on the Great Perfection of Wisdom and other Sūtras",
+                explanation_zh: "佛經指出財富的不穩定性。這『五家』通常指：**水災、火災、盜賊、惡王（貪官污吏）、不肖子孫**。累積的財物並不能長久保有，以此提醒世人財物終究是帶不走的。",
+                explanation_en: "Indicates the instability of wealth. The 'five groups' usually refer to: **water, fire, thieves, corrupt rulers, and unworthy descendants**. Accumulated wealth cannot be kept permanently, reminding people that possessions cannot be taken with them."
+            },
+            { 
+                zh: "諸未施財無常滅，由施反成有財庫。", 
+                zh_en: "Wealth that is not given away is destroyed by impermanence; by giving, it conversely becomes a treasury of wealth (merit).",
+                source: "宗喀巴大師《菩提道次第廣論》引述", 
+                source_en: "Lama Tsongkhapa's Lamrim Chenmo (The Great Treatise on the Stages of the Path to Enlightenment)",
+                explanation_zh: "闡述**布施**的智慧。如果財富吝嗇不施，終會被無常奪去；如果能行布施，則能將物質財富轉化為生生世世受用不盡的**功德法財**。",
+                explanation_en: "Explains the wisdom of **giving (Dāna)**. If wealth is hoarded and not given, it will eventually be seized by impermanence; if practiced through giving, material wealth transforms into **spiritual merit** that can be enjoyed throughout lifetimes."
+            },            
+            { 
+                zh: "如幻眾生，雖常恐怖，性實不驚。", 
+                zh_en: "Although illusory sentient beings constantly experience fear, their nature is truly not startled.",
+                source: "《維摩詰所說經》", 
+                source_en: "The Vimalakīrti Nirdeśa Sūtra",
+                explanation_zh: "以**如幻觀**對治恐懼。眾生會感到恐懼，是因為執著於這個如夢幻般不實的**『我』**。但我們的**心性**本體是清淨不變的，實質上不曾被驚動。",
+                explanation_en: "Counters fear with the **contemplation of illusion**. Beings feel fear because they cling to the unreal 'self.' However, the **nature of our mind** is fundamentally pure and unchanging, never truly startled."
+            },
+            { 
+                zh: "一念瞋心起，百萬障門開。", 
+                zh_en: "When one thought of anger (hatred) arises, a million gates of obstacles open up.",
+                source: "《華嚴經》", 
+                source_en: "The Avatamsaka Sutra (Poetic Interpretation or Derivation)",
+                explanation_zh: "『瞋心』指瞋恨或發怒的心念。此句是告誡修行人，瞋恨是三毒中最猛烈、破壞力最強的煩惱。即使只是一個短暫的憤怒心念，也會立刻開啟無數的修行障礙和惡業之門，極大地耗損福德。",
+                explanation_en: "This phrase warns practitioners that anger (hatred) is the most intense and destructive of the three poisons. Even a brief thought of anger instantly opens countless gates of spiritual obstacles and negative karma, greatly diminishing one's blessings and merits."
+            },
+            // --- 印光大師文鈔系列法語 (對治三毒) ---
+            { 
+                zh: "貪心不除，所作皆是魔事。", 
+                zh_en: "If the mind of greed is not eradicated, everything one does becomes the work of demons.",
+                source: "《印光法師文鈔》〈復真達和尚書〉", 
+                source_en: "Master Yin Guang's Writings: Letter to Chan Master Zhen Da",
+                explanation_zh: "針對『貪』毒。貪欲是道業最大的障礙。如果帶著貪婪的心去行善、修行，動機不純，最終會被煩惱和妄想所染污，使善行變質，偏離正道，成為引發苦果的『魔事』。",
+                explanation_en: "Addressing the poison of 'Greed.' Greed is the greatest obstacle to spiritual practice. If one practices or performs good deeds with a greedy heart, the impure motive will defile the practice, leading it astray and making it into 'demonic work' that brings suffering."
+            },
+            { 
+                zh: "心若無欲，則煩惱不能侵。", 
+                zh_en: "If the mind is free of desires, then afflictions cannot encroach upon it.",
+                source: "《印光法師文鈔》〈復周伯遒書〉", 
+                source_en: "Master Yin Guang's Writings: Letter to Zhou Bo Qiu",
+                explanation_zh: "針對『貪』毒。貪欲是煩惱產生的內在根源。一旦心能放下物慾和名利，斬斷了煩惱侵入的途徑，心性自然穩定，外在的誘惑和紛擾就無法動搖內心的清淨。",
+                explanation_en: "Addressing the poison of 'Greed.' Desire is the internal root cause of affliction. Once the mind lets go of material desires and fame, the pathway for afflictions to enter is cut, the mind becomes stable, and external temptations and disturbances cannot shake inner purity."
+            },
+            { 
+                zh: "瞋心一起，智慧便失。", 
+                zh_en: "As soon as anger (hatred) arises, wisdom is lost.",
+                source: "《印光法師文鈔》〈復謝慧霖居士書〉", 
+                source_en: "Master Yin Guang's Writings: Letter to Layman Xie Hui Lin",
+                explanation_zh: "針對『瞋』毒。當瞋恨、發怒的心念一生起，心識就會被燒盡，理智（智慧）立刻昏亂失效。此時做出的決定和行為都會是錯誤的，且會造下嚴重的惡業。",
+                explanation_en: "Addressing the poison of 'Hatred.' When a thought of anger or rage arises, the consciousness is clouded, and rationality (wisdom) immediately fails. Decisions and actions made at this time will be incorrect and will create severe negative karma."
+            },
+            { 
+                zh: "凡事以忍為要，忍能消業障。", 
+                zh_en: "In all matters, forbearance (patience) is paramount; forbearance can eliminate karmic obstacles.",
+                source: "《印光法師嘉言錄》 (多處收錄)", 
+                source_en: "Recorded Sayings of Master Yin Guang (Collected)",
+                explanation_zh: "對治『瞋』毒的方法。強調**忍辱**是修行中極為重要的德行。能夠忍耐惡境、惡言，不僅能防止造下瞋恨之業，還能逆轉過去所造的業障，是快速積聚功德的法門。",
+                explanation_en: "The method for countering the poison of 'Hatred.' Emphasizes **forbearance (patience)** as a crucial spiritual virtue. Enduring adversity and harsh words not only prevents the creation of new negative karma from anger but also reverses past karmic obstacles, serving as a swift way to accumulate merit."
+            },
+            { 
+                zh: "愚癡者但求外求，不知返觀自心。", 
+                zh_en: "The deluded seek only externally, unaware of the need to turn back and contemplate their own mind.",
+                source: "《印光法師文鈔》〈示周孟由居士〉", 
+                source_en: "Master Yin Guang's Writings: Guidance to Layman Zhou Meng You",
+                explanation_zh: "針對『癡』毒。一切煩惱（貪瞋）都源於**愚癡**（無明）。愚癡的表現就是不斷向外追逐、攀緣，不知道向內審視、觀照自己的心性本體，失去了認識真相的根本能力。",
+                explanation_en: "Addressing the poison of 'Delusion.' All afflictions (greed and hatred) stem from **ignorance (delusion).** Delusion manifests as continuous outward pursuit, neglecting to look inward and contemplate the fundamental nature of the mind, thereby losing the basic ability to recognize reality."
+            },
+            // --- 弘一大師與修心系列法語 (對治三毒) ---
+            { 
+                zh: "欲減一分，煩惱即減一分。", 
+                zh_en: "Reduce desire by one degree, and afflictions decrease by one degree.",
+                source: "《格言別錄》", 
+                source_en: "Sayings and Aphorisms (Ge Yan Bie Lu)",
+                explanation_zh: "針對『貪』毒。貪欲與煩惱之間存在正比關係。這是修行中『少欲知足』法門的實際指導：不需要將貪欲一次性斷盡，只需在日常生活中減少一分慾望，就能立刻減輕一分煩惱的痛苦。",
+                explanation_en: "Addressing the poison of 'Greed.' There is a direct proportional relationship between desire and affliction. This is practical guidance for the practice of 'few desires and contentment': by reducing desire even slightly in daily life, the pain of affliction is immediately lessened."
+            },
+            { 
+                zh: "勿嗔。嗔心一動，百障齊生。", 
+                zh_en: "Do not be angry. As soon as a mind of hatred stirs, a hundred obstacles arise simultaneously.",
+                source: "《弘一大師語錄》", 
+                source_en: "Recorded Sayings of Master Hong Yi",
+                explanation_zh: "針對『瞋』毒。此句強調了瞋恨心在修行中的巨大破壞力，與『一念瞋心起，百萬障門開』意義相近。瞋心不僅是道德上的過失，更是障礙智慧、福德和所有善法的直接原因。",
+                explanation_en: "Addressing the poison of 'Hatred.' This emphasizes the enormous destructive power of anger in practice, akin to 'a million gates of obstacles open up.' Hatred is not only a moral transgression but also the direct cause of impeding wisdom, merit, and all wholesome dharmas."
+            },
+            { 
+                zh: "心淨則智慧生，心亂則愚癡起。", 
+                zh_en: "When the mind is pure, wisdom arises; when the mind is chaotic, delusion (ignorance) arises.",
+                source: "《清淨法語》", 
+                source_en: "Pure Dharma Sayings",
+                explanation_zh: "針對『癡』毒。開示了智慧與愚癡的內在機制：心不清淨、雜亂無章是『癡』的根源；只有通過修定、持戒，保持內心清淨，才能啟發本具的般若智慧。",
+                explanation_en: "Addressing the poison of 'Delusion.' This explains the inner mechanism of wisdom and delusion: an impure, chaotic mind is the root of 'delusion.' Only by cultivating concentration and discipline to maintain inner purity can one awaken the innate Prajñā wisdom."
+            },
+            { 
+                zh: "靜坐常思己過，閒談莫論人非。", 
+                zh_en: "When sitting in quiet contemplation, constantly reflect on one's own faults; in casual conversation, do not discuss the wrongs of others.",
+                source: "弘一大師座右銘 (多處收錄)", 
+                source_en: "Master Hong Yi's Motto (Collected in various sources)",
+                explanation_zh: "這是『戒瞋、離癡』的實踐方法。**思己過**是破『癡』的功夫，減少自大與無明；**莫論人非**是戒『瞋』的功夫，避免因評論是非而引發爭執和瞋恨。",
+                explanation_en: "The practical method for 'abstaining from hatred and departing from delusion.' **Reflecting on one's own faults** is the effort to overcome 'delusion,' reducing arrogance and ignorance; **not discussing the wrongs of others** is the effort to abstain from 'hatred,' avoiding disputes and anger caused by criticism."
+            },
+            { 
+                zh: "清心為要，少欲為貴。", 
+                zh_en: "Purity of mind is the essential; few desires are the most precious.",
+                source: "《弘一大師法語》", 
+                source_en: "Dharma Sayings of Master Hong Yi",
+                explanation_zh: "這是對治三毒的總綱領。**清心**（心不亂）能破『癡』，讓智慧生起；**少欲**（欲不貪）能破『貪』，使心境安樂。保持內心的純淨與簡單，是修行的珍貴之道。",
+                explanation_en: "This is the overall principle for counteracting the three poisons. **Purity of mind** (non-chaos) overcomes 'delusion,' allowing wisdom to arise; **few desires** (non-greed) overcomes 'greed,' leading to inner peace. Maintaining purity and simplicity of the mind is the precious way of practice."
+            },
+            { 
+                zh: "貪欲者眾苦之本。", 
+                zh_en: "Greedy desire is the root of all suffering.",
+                source: "《安士全書》引藕益語", 
+                source_en: "An Shi Quan Shu (Complete Book of Master An) quoting Master Ouyi",
+                explanation_zh: "針對『貪』毒。此句將貪欲定性為一切苦惱的根本來源。所有的患得患失、求不得、愛別離等痛苦，追根溯源都來自於內心的貪戀和執著。",
+                explanation_en: "Addressing the poison of 'Greed.' This states that greedy desire is the fundamental source of all suffering. All pains, such as anxiety over gain and loss, not getting what one seeks, and separation from loved ones, ultimately stem from internal craving and attachment."
+            },
+            { 
+                zh: "瞋恚者地獄之門。", 
+                zh_en: "Hatred (anger) is the gate to the hell realms.",
+                source: "《安士全書》引藕益語", 
+                source_en: "An Shi Quan Shu (Complete Book of Master An) quoting Master Ouyi",
+                explanation_zh: "針對『瞋』毒。瞋恨心的破壞力極強，不僅能燒毀功德之林，更被視為直接引導眾生墮入三惡道（尤其是地獄）的門戶。提醒修行人應當極度謹慎、嚴格戒除。",
+                explanation_en: "Addressing the poison of 'Hatred.' Hatred has immense destructive power; it not only burns the forest of merit but is also regarded as the direct gateway leading beings to the three lower realms (especially hell). It strongly cautions practitioners to be extremely vigilant and strictly abstain from it."
+            },
+            { 
+                zh: "癡為三毒之首，能迷自心本性。", 
+                zh_en: "Delusion (ignorance) is the head of the three poisons, capable of deluding the fundamental nature of one's own mind.",
+                source: "《藕益大師語錄》", 
+                source_en: "Recorded Sayings of Master Ouyi",
+                explanation_zh: "針對『癡』毒。雖然在排列上常是貪、瞋、癡，但就本質而言，**癡（無明）**才是煩惱的根本。因為心被無明蒙蔽，不能認識萬法實相，才產生貪、瞋，進而迷失清淨的自心本性。",
+                explanation_en: "Addressing the poison of 'Delusion.' Although often listed as Greed, Hatred, Delusion, in essence, **delusion (ignorance)** is the root of all afflictions. It is because the mind is veiled by ignorance that it fails to recognize the true nature of phenomena, leading to the emergence of greed and hatred, thereby obscuring the pure fundamental nature of the mind."
+            },
+            { 
+                zh: "戒貪以少欲知足；戒瞋以慈悲忍辱；戒癡以念佛開智慧。", 
+                zh_en: "Guard against greed with few desires and contentment; guard against hatred with compassion and forbearance; guard against delusion by reciting the Buddha's name and awakening wisdom.",
+                source: "淨土行門開示", 
+                source_en: "Pure Land Practice Instructions",
+                explanation_zh: "總結了對治三毒的實踐方法：1. 破貪用**知足**；2. 破瞋用**慈悲忍辱**；3. 破癡用**念佛**（結合智慧觀照）。特別指出淨土法門中，以念佛來培養正念、破除無明，是開顯智慧的殊勝方法。",
+                explanation_en: "A summary of the practical methods for counteracting the three poisons: 1. Counter 'Greed' with **Few Desires and Contentment**; 2. Counter 'Hatred' with **Compassion and Forbearance**; 3. Counter 'Delusion' with **Reciting the Buddha's Name** (combined with contemplating wisdom). It highlights that in the Pure Land tradition, using Buddha-name recitation to cultivate right mindfulness and eliminate ignorance is an excellent way to manifest wisdom."
+            },
+            // --- 虛雲老和尚系列法語 (對治三毒與安樂) ---
+            { 
+                zh: "貪心重者，多生憂懼；能放下者，夜夜安眠。", 
+                zh_en: "Those heavy with greed give rise to much worry and fear; those who can let go sleep peacefully every night.",
+                source: "《虛雲老和尚法彙》", 
+                source_en: "Collected Dharma Teachings of Elder Master Xuyun",
+                explanation_zh: "針對『貪』毒。貪心是憂慮和恐懼的直接來源，因為擔心失去所貪之物。真正的心安和快樂，不在於擁有多少，而在於能否學習**放下**，這樣才能獲得身心的自在安穩。",
+                explanation_en: "Addressing the poison of 'Greed.' Greed is the direct source of worry and fear, stemming from the anxiety of losing what one craves. True peace and happiness do not lie in how much one possesses, but in the ability to **let go**, thereby achieving ease and security of body and mind."
+            },
+            { 
+                zh: "瞋心一起，百日功德化為烏有。", 
+                zh_en: "As soon as a mind of hatred arises, a hundred days of accumulated merit turn to naught.",
+                source: "虛雲開示錄", 
+                source_en: "Recorded Instructions of Master Xuyun",
+                explanation_zh: "針對『瞋』毒。此句強調瞋心對福德和修行功力的極強破壞性。即使長期積累的善行功德，也可能因為一念猛烈的瞋恨心而瞬間銷毀，勸誡修行人務必嚴持忍辱。",
+                explanation_en: "Addressing the poison of 'Hatred.' This emphasizes the extreme destructive power of anger against merit and spiritual achievements. Even merits accumulated over a long period can be instantly destroyed by one intense thought of hatred, urging practitioners to strictly maintain forbearance."
+            },
+            { 
+                zh: "愚癡不懂因果，故造諸惡。", 
+                zh_en: "The deluded do not understand cause and effect, and thus commit all evils.",
+                source: "虛雲老和尚開示", 
+                source_en: "Master Xuyun's Instructions",
+                explanation_zh: "針對『癡』毒。指出『無明』是行為錯誤的根本原因。人們之所以作惡、造罪，不是刻意為之，而是因為不明白『因果報應』的真理，缺乏智慧的指導。",
+                explanation_en: "Addressing the poison of 'Delusion.' It states that 'ignorance' is the root cause of erroneous actions. People commit evil and create negative karma not intentionally, but because they do not understand the truth of 'karmic retribution' and lack the guidance of wisdom."
+            },
+            { 
+                zh: "放下屠刀，不是外相，而是放下貪瞋癡。", 
+                zh_en: "To put down the butcher's knife is not merely an external act, but to put down greed, hatred, and delusion.",
+                source: "《虛雲和尚說法》", 
+                source_en: "Dharma Discourses of Venerable Master Xuyun",
+                explanation_zh: "總結了斷惡修善的核心。真正的修行和懺悔，並非僅是改變外在的行為模式（放下屠刀），而是必須從根本上斷除內在的煩惱根源——**貪、瞋、癡**。",
+                explanation_en: "Summarizes the core of ending evil and cultivating good. True spiritual practice and repentance are not just about changing external behavior (putting down the knife), but fundamentally eradicating the internal roots of affliction—**greed, hatred, and delusion**."
+            },
+            { 
+                zh: "忍一句，息一怒；退一步，化千災。", 
+                zh_en: "Endure one word, subdue one fit of rage; step back one pace, resolve a thousand disasters.",
+                source: "虛雲和尚開示語錄 (常訓)", 
+                source_en: "Recorded Instructions of Master Xuyun (Frequent Teaching)",
+                explanation_zh: "對治『瞋』毒的實用方法。強調**忍讓**的重要性。在紛爭發生時，能夠忍住一句不說，就能平息當下的怒火；能夠退讓一步，就能避免更大的災禍和衝突，是消解人際煩惱的妙方。",
+                explanation_en: "A practical method for counteracting the poison of 'Hatred.' It emphasizes the importance of **patience and yielding**. Enduring one word subdues immediate anger; yielding one step avoids greater calamity and conflict, making it a wonderful antidote for interpersonal afflictions."
+            },
+            // --- 六祖壇經系列法語 ---
+            { 
+                zh: "心平何勞持戒，行直何用修禪。", 
+                zh_en: "If the mind is naturally level (balanced), why bother holding precepts? If one's conduct is upright, why need to cultivate concentration (Zen)?",
+                source: "《六祖壇經》", 
+                source_en: "The Platform Sutra of the Sixth Patriarch",
+                explanation_zh: "闡述禪宗『心地法門』的究竟境界。強調**心性**才是修行的根本：如果心性已經達到平和、正直的境界，那麼外在形式上的持戒或禪定，就不再是必需品。這是對治執著於形式修行的良藥。",
+                explanation_en: "Expounds the ultimate state of the Chan (Zen) 'Mind-Ground Dharma-gate.' It emphasizes that the **nature of the mind** is the root of practice: if the mind has already reached a state of balance and uprightness, then external forms of keeping precepts or cultivating concentration are no longer necessary. This is an antidote for attachment to the form of practice."
+            },
+            { 
+                zh: "佛法在世間，不離世間覺。", 
+                zh_en: "The Buddha Dharma is in the world; enlightenment is not separate from the world.",
+                source: "《六祖壇經》", 
+                source_en: "The Platform Sutra of the Sixth Patriarch",
+                explanation_zh: "指出佛法與現實生活的關係。真正的覺悟不是逃離世俗生活，而是在處理日常事務、面對生活挑戰（世間）的過程中去覺察、調伏自己的心性。幸福和智慧就隱藏在每個當下。",
+                explanation_en: "States the relationship between the Dharma and daily life. True enlightenment is not escaping the mundane world, but achieving awareness and harmonizing the mind's nature within the process of dealing with daily affairs and life's challenges. Happiness and wisdom are found in every present moment."
+            },
+            // --- 永嘉證道歌系列法語 ---
+            { 
+                zh: "覺後空空無大千，萬象森羅皆自心。", 
+                zh_en: "After awakening, the great trichiliocosm is empty; the myriad phenomena are all just one's own mind.",
+                source: "《永嘉證道歌》", 
+                source_en: "Song of Enlightenment by Yongjia Zhenjue",
+                explanation_zh: "描述證悟**空性**後的境界。當心性徹底覺悟之後（覺後），會了達廣大的世界（大千）本質是空（空空無）。所有雜亂的萬事萬物（萬象森羅），都只是自己清淨心性的顯現和感受（皆自心）。這能幫助我們理解幸福不由外求，心自在則處處皆安樂。",
+                explanation_en: "Describes the state after realizing **Emptiness**. Upon complete awakening, one realizes that the vast universe (great trichiliocosm) is essentially empty. All the messy, myriad phenomena are merely the manifestation and perception of one's own pure mind. This helps us understand that happiness is not sought externally; when the mind is free, peace is found everywhere."
+            },
+            // --- 太虛大師（人間佛教）系列法語 ---
+            { 
+                zh: "人間佛教，以淨化人心、完成人格為本。", 
+                zh_en: "Humanistic Buddhism takes the purification of the human mind and the perfection of one's personality as its foundation.",
+                source: "《太虛全集》", 
+                source_en: "The Complete Works of Master Tai Xu",
+                explanation_zh: "闡述了人間佛教的根本宗旨。它指出修行的核心目的不是追求外在的成就，而是回歸到內在的心靈品質：消除煩惱以『淨化人心』，並以戒定慧圓滿『完成人格』。幸福的根源在於健全與清淨的內在。",
+                explanation_en: "Explains the fundamental purpose of Humanistic Buddhism. It states that the core goal of spiritual practice is not external achievement, but returning to internal mental quality: purifying the mind by eliminating afflictions, and perfectly completing one's personality through precepts, concentration, and wisdom. The root of happiness lies in a healthy and pure inner self."
+            },
+            { 
+                zh: "人生以服務為目的，愈服務愈快樂。", 
+                zh_en: "The purpose of human life is service; the more one serves, the happier one becomes.",
+                source: "太虛講錄 (多處載)", 
+                source_en: "Recorded Lectures of Master Tai Xu (Various Sources)",
+                explanation_zh: "這句是**利他主義**的實踐。它指出，將生命的目標設定在利樂眾生（服務），能夠超越『我執』和自私的貪求。當一個人真心付出時，能夠得到最大的內在滿足感，這比追求個人享樂所帶來的快樂更長久、更真實。",
+                explanation_en: "This is the practice of **altruism**. It states that setting the goal of life as benefiting sentient beings (service) transcends 'self-clinging' and selfish craving. When a person sincerely gives, they gain the greatest internal satisfaction, which is more lasting and authentic than the happiness derived from pursuing personal pleasure."
+            },
+            // --- 印光大師法語（心安與念佛）系列 ---
+            { 
+                zh: "心安即是福，心定即是慧。", 
+                zh_en: "A peaceful mind is true blessing; a concentrated mind is true wisdom.",
+                source: "《印光法師文鈔》", 
+                source_en: "Master Yin Guang's Writings",
+                explanation_zh: "指出幸福與智慧的內在根源。世間人多以財富、名利為福，但印光大師認為，能夠保持心平氣和、沒有憂慮和掛礙，才是最大的**福報**。而心念集中、不被外境動搖，即是**智慧**的展現。",
+                explanation_en: "Points out the internal source of happiness and wisdom. While worldly people often consider wealth and fame as blessings, Master Yin Guang believes that maintaining peace of mind, free from worry and hindrance, is the greatest **blessing**. Furthermore, having a focused mind, unshaken by external circumstances, is the manifestation of **wisdom**."
+            },
+            { 
+                zh: "念佛之人，少欲知足，常生歡喜。", 
+                zh_en: "A person who recites the Buddha's name, with few desires and contentment, constantly gives rise to joy.",
+                source: "《印光法師嘉言錄》", 
+                source_en: "Recorded Sayings of Master Yin Guang",
+                explanation_zh: "這是淨土法門中獲得快樂的指導。透過**少欲知足**來對治貪欲，使內心不再向外追逐，而專注於**念佛**的清明心念中。心念單純且得到佛力加持，自然能夠持續不斷地生起內在的歡喜。",
+                explanation_en: "This is guidance for achieving happiness in the Pure Land tradition. By using **few desires and contentment** to counteract greed, the mind stops chasing external things and focuses on the clear mind of **Buddha-name recitation**. A simple mind, supported by the Buddha's power, naturally gives rise to continuous inner joy."
+            },
+            // --- 弘一大師法語（心與當下）系列 ---
+            { 
+                zh: "一切皆為自心所現，心好一切好。", 
+                zh_en: "Everything is manifested by one's own mind; if the mind is good, everything is good.",
+                source: "《弘一大師語錄》", 
+                source_en: "Recorded Sayings of Master Hong Yi",
+                explanation_zh: "這是『一切唯心造』的直接表達。生活中的所有遭遇、感受和體驗（一切），都是由我們內在的**心念**所創造和顯現。因此，幸福的根本不在於改變外境，而在於保持一顆善良、清淨的『好心』，心念的品質決定了生活的品質。",
+                explanation_en: "This is a direct expression of 'everything is created by the mind alone.' All encounters, feelings, and experiences in life are created and manifested by our internal **mind-set**. Therefore, the root of happiness is not about changing external circumstances, but about maintaining a kind and pure 'good mind.' The quality of one's mind determines the quality of life."
+            },
+            { 
+                zh: "日日是好日。", 
+                zh_en: "Every day is a good day.",
+                source: "弘一大師常用之禪語 (原出《碧巖錄》)", 
+                source_en: "Zen saying frequently used by Master Hong Yi (Originally from The Blue Cliff Record)",
+                explanation_zh: "這句禪語教導我們**活在當下**和**平常心**。它指出日子本身沒有好壞之分，好與壞的區別只存在於我們心念的執著。若能放下分別心，不被外境（順境或逆境）所動，以平靜的心面對每一天，那麼每一天都是充滿覺悟的『好日』。",
+                explanation_en: "This Zen saying teaches **living in the present** and **ordinary mind**. It states that days themselves are neither good nor bad; the distinction exists only in our mental attachment. If we can let go of discriminatory thoughts and face every day with a calm mind, unperturbed by external circumstances, then every day is a 'good day' filled with awakening."
+            },
+            // --- 虛雲老和尚法語（放下與清淨）系列 ---
+            { 
+                zh: "能放下者，處處輕安；不能放下者，無處不是煩惱。", 
+                zh_en: "Those who can let go find tranquility everywhere; those who cannot let go find affliction nowhere absent.",
+                source: "《虛雲和尚開示語錄》", 
+                source_en: "Recorded Instructions of Master Xuyun",
+                explanation_zh: "強調『放下』是獲得解脫和安樂的唯一途徑。煩惱的本質是執著（我執與法執），如果能夠放下對人、事、物的貪戀和執著，心性自然輕盈安寧（輕安），無論身處何處都自在；反之，執著不放，則處處皆是心靈的束縛和痛苦。",
+                explanation_en: "Emphasizes that 'letting go' is the only path to liberation and peace. The nature of affliction is clinging. If one can let go of attachment to people, events, and things, the mind naturally becomes light and tranquil (ch'ing-an), finding ease everywhere. Conversely, clinging makes every place a source of mental bondage and suffering."
+            },
+            { 
+                zh: "一念清淨，福慧俱增。", 
+                zh_en: "One moment of pure thought, and both blessings and wisdom increase.",
+                source: "《虛雲法彙》", 
+                source_en: "Collected Dharma Teachings of Master Xuyun",
+                explanation_zh: "指出『清淨心』的巨大功德。清淨心是指遠離貪、瞋、癡等煩惱污染的心念。當心念恢復清淨時，就能在當下生起智慧（破癡），同時也積累了無量的福德。這是獲得真正幸福與智慧的關鍵。",
+                explanation_en: "Highlights the immense merit of a 'pure mind.' A pure mind is one free from the defilements of greed, hatred, and delusion. When the mind returns to purity, it immediately gives rise to wisdom (overcoming delusion) and simultaneously accumulates immeasurable blessings. This is the key to attaining true happiness and wisdom."
+            },
+            // --- 證嚴法師（慈濟）系列法語 ---
+            { 
+                zh: "心靈富有，比物質富有，更能帶來幸福。", 
+                zh_en: "Spiritual richness brings more happiness than material richness.",
+                source: "證嚴法師開示", 
+                source_en: "Dharma Discourse by Dharma Master Cheng Yen",
+                explanation_zh: "指出幸福的真諦。物質富有雖然帶來便利，但無法消除內心的煩惱和空虛。真正的幸福來自於內在的『心靈富有』——擁有清淨、知足、充滿愛和善念的心。這種內在的力量才是持續幸福的核心。",
+                explanation_en: "Identifies the true meaning of happiness. While material wealth brings convenience, it cannot eliminate inner afflictions and emptiness. True happiness comes from internal 'spiritual richness'—having a pure, content mind full of love and wholesome thoughts. This internal strength is the core of lasting happiness."
+            },
+            { 
+                zh: "真正的快樂，是助人之後心中的那份自在。", 
+                zh_en: "True joy is the sense of ease in the heart after helping others.",
+                source: "慈濟靜思語", 
+                source_en: "Jing Si Aphorisms (Tzu Chi)",
+                explanation_zh: "闡述了利他主義帶來的深刻滿足感。世間的享樂是短暫的，但當一個人發自內心地幫助他人，看到他人離苦得樂後，心中生起的那種無私、純粹的『自在』與輕安，才是超越物質的、長久的真快樂。",
+                explanation_en: "Explains the deep satisfaction derived from altruism. Worldly pleasures are fleeting, but the unselfish, pure sense of 'ease' and tranquility that arises in the heart after sincerely helping others to relieve their suffering is a long-lasting, true joy that transcends the material."
+            },
+            // --- 聖嚴法師（法鼓山）系列法語 ---
+            { 
+                zh: "心簡單，世界就簡單；心自在，人生就自在。", 
+                zh_en: "If the mind is simple, the world is simple; if the mind is free, life is free.",
+                source: "聖嚴法師法語", 
+                source_en: "Dharma Saying by Dharma Master Sheng Yen",
+                explanation_zh: "闡述了**心境與外境**的關係。世界本身沒有複雜或簡單之分，所有的複雜和煩惱都源於我們內心的分別、執著和貪求。減少內在的雜染，使心念單純，自然能感受到世界的簡單和人生的自在，這是獲得幸福的捷徑。",
+                explanation_en: "Explains the relationship between the mind and external circumstances. The world itself is neither simple nor complex; all complexity and affliction stem from our internal distinctions, attachments, and cravings. Simplifying the mind by reducing internal defilements naturally leads one to perceive the world as simple and life as free. This is a shortcut to happiness."
+            },
+            { 
+                zh: "幸福不是得到多，而是計較少。", 
+                zh_en: "Happiness is not about getting more, but about comparing and calculating less.",
+                source: "法鼓山開示", 
+                source_en: "Dharma Discourse at Dharma Drum Mountain",
+                explanation_zh: "針對世人對幸福的誤解。世間人誤以為擁有得越多（得到多）就越幸福，但聖嚴法師指出，幸福的關鍵在於內心的**知足**。當我們減少與他人的比較、減少對得失的計較時，就能常常感到滿足，自然獲得幸福。",
+                explanation_en: "Addresses the common misunderstanding of happiness. While people mistakenly believe that possessing more leads to greater happiness, Master Sheng Yen points out that the key to happiness is internal **contentment**. By reducing comparisons with others and calculating less about gain and loss, one feels satisfied more often, thus naturally achieving happiness."
+            },
+            // --- 星雲大師與宗鏡錄系列法語 ---
+            { 
+                zh: "給人歡喜，就是給自己幸福。", 
+                zh_en: "Giving joy to others is giving happiness to oneself.",
+                source: "《人間福報・星雲法語》", 
+                source_en: "Merit Times E-paper - Master Hsing Yun's Dharma Sayings",
+                explanation_zh: "強調**利他**的循環。當我們以善意和慈悲心去服務、幫助他人，使他人感到歡喜時，這份無私的善念和福德自然會迴向，讓我們的心靈獲得更深刻、更持久的幸福與滿足感。",
+                explanation_en: "Emphasizes the cycle of **altruism**. When we serve and help others with kindness and compassion, making them happy, this selfless and wholesome thought naturally returns, granting our minds deeper and more lasting happiness and satisfaction."
+            },
+            { 
+                zh: "知足最樂，能忍最安。", 
+                zh_en: "Contentment is the greatest joy; forbearance is the greatest peace.",
+                source: "《星雲大師全集》", 
+                source_en: "The Complete Works of Master Hsing Yun",
+                explanation_zh: "總結了破『貪』與破『瞋』的兩大修行法門。**知足**（少欲）能夠對治貪欲，是快樂的根源；**能忍**（忍辱）能夠對治瞋恨，是獲得內心安定與平和的根本。兩者結合，幸福才能穩固。",
+                explanation_en: "Summarizes the two great practices for overcoming 'Greed' and 'Hatred.' **Contentment** (few desires) counters greed and is the root of joy; **Forbearance** (patience) counters hatred and is the foundation for achieving inner stability and peace. Combined, happiness becomes enduring."
+            },
+            { 
+                zh: "閒時常念己過，忙裡常存寧靜。", 
+                zh_en: "In moments of leisure, often contemplate your own faults; in the midst of busyness, always maintain tranquility.",
+                source: "《藕益大師語錄》", 
+                source_en: "Sayings of Venerable Master Ouyi",
+                explanation_zh: "這句話是在教我們一種**平衡生活、修養內心**的方法：當你**空閒沒事的時候**，不要只是放空，而是要經常**反省和檢討自己做錯了什麼**，這樣才能不斷進步；而當你**工作忙碌的時候**，則要努力保持**內心的平靜和專注**，不要慌亂。做到這兩點，你的心靈就會保持清明，自然在哪裡都能感到自在和幸福。",
+                explanation_en: "This statement teaches us a way to **balance life and cultivate inner peace**: When you are **free and idle**, don't just zone out; instead, regularly **reflect on and examine what mistakes you have made**, which leads to continuous self-improvement. When you are **busy with work**, you must strive to maintain **inner tranquility and focus**, avoiding panic. By doing these two things, your mind will stay clear, and you will naturally feel free and happy wherever you are."
+            }
         ];
 
         let currentLang = 'zh-TW'; 
@@ -308,6 +1184,10 @@
             document.getElementById('proverb-intro').textContent = langData.proverbIntro;
             document.getElementById('dissolve-message-text').textContent = langData.dissolveMessage;
 
+           const bloggerName = langData.blogger;
+            const maintainerLinkHTML = `<a href="https://theslowjoy.blogspot.com/" target="_blank" style="color: inherit; text-decoration: underline;">${bloggerName}</a>`;
+            document.getElementById('blogger-text').innerHTML = maintainerLinkHTML; 
+
             // Set the HTML lang attribute for better accessibility/SEO
             document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-Hant';
         }
@@ -337,7 +1217,7 @@
                 overlay.classList.add('dissolve-start');
             }, 50); 
 
-            // --- 步驟 2: 處理煩惱並顯示法語 (延遲 4 秒) ---
+            // --- 步驟 2: 處理煩惱並顯示法語 (延遲 2 秒) ---
             const animationDuration = 2000; 
             setTimeout(() => {
                 // 清空輸入框 (煩惱已消散)
@@ -346,13 +1226,15 @@
                 // 隨機選擇一則法語
                 const randomIndex = Math.floor(Math.random() * proverbsData.length);
                 const proverb = proverbsData[randomIndex];
-                
-                // 根據當前語言選擇正確的解釋鍵
+
+                // 根據當前語言選擇正確的鍵
+                const proverbKey = currentLang === 'zh-TW' ? 'zh' : 'zh_en';
+                const sourceKey = currentLang === 'zh-TW' ? 'source' : 'source_en';
                 const explanationKey = currentLang === 'zh-TW' ? 'explanation_zh' : 'explanation_en';
                 
-                // 顯示法語 (中文原文)
-                document.getElementById('proverb-text').textContent = proverb.zh; 
-                document.getElementById('proverb-source').textContent = '— ' + proverb.source;
+                // 顯示法語 (根據語系切換原文/翻譯)
+                document.getElementById('proverb-text').textContent = proverb[proverbKey];
+                document.getElementById('proverb-source').textContent = '— ' + proverb[sourceKey];
                 
                 // 顯示解釋 (根據語系切換)
                 document.getElementById('proverb-explanation').textContent = proverb[explanationKey];
@@ -372,6 +1254,6 @@
 
         // 5. 初始化：偵測語系並套用文案
         window.onload = detectAndSetLanguage;
-    </script>
+    </script>    
 </body>
 </html>
