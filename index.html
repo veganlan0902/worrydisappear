@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>煩惱消散器 | Worry Dissolver</title>
     <style>
-        /* ----------------------- */
-        /* CSS 樣式部分 - 暖色調主題 */
-        /* ----------------------- */
+        /* CSS 樣式部分... (保持不變) */
         :root {
             --primary-color: #FF7043; /* 暖橘色 (核心動作色) */
             --primary-light: #FFAB91; /* 較淺的橘色 */
@@ -29,21 +27,20 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, var(--bg-color-light) 0%, var(--bg-color-dark) 100%); /* 漸層背景 */
+            background: linear-gradient(135deg, var(--bg-color-light) 0%, var(--bg-color-dark) 100%); 
             color: var(--text-color-dark);
             text-align: center;
             transition: background 0.5s ease-in-out;
-            overflow: hidden; /* 防止動畫溢出滾動條 */
+            overflow: hidden; 
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.95); /* 半透明白底，帶一點暖色 */
+            background: rgba(255, 255, 255, 0.95); 
             padding: 45px;
             border-radius: 20px;
             box-shadow: var(--shadow-strong);
             max-width: 550px;
             width: 90%;
-            /* 移除 transform 效果，只保留陰影過渡 */
             transition: box-shadow 0.4s ease-in-out; 
             position: relative;
             z-index: 10; 
@@ -51,9 +48,7 @@
         }
 
         .container:hover {
-            /* 移除 translateY 和 rotateZ 效果 */
             transform: none; 
-            /* 僅保留陰影加深 */
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
         }
 
@@ -89,7 +84,7 @@
 
         textarea:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.3); /* 使用純色值確保兼容性 */
+            box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.3); 
             outline: none;
         }
 
@@ -117,9 +112,7 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* ----------------------- */
-        /* 結果顯示區塊樣式 */
-        /* ----------------------- */
+        /* 結果顯示區塊樣式 (保持不變) */
         #result {
             margin-top: 40px;
             padding: 25px;
@@ -174,9 +167,7 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        /* ----------------------- */
-        /* 華麗的煩惱消散動畫效果 */
-        /* ----------------------- */
+        /* 華麗的煩惱消散動畫效果 (保持不變) */
         #dissolve-overlay {
             position: fixed;
             top: 0;
@@ -189,7 +180,7 @@
             align-items: center;
             z-index: 9999; 
             opacity: 1;
-            transition: opacity 2s ease-out; 
+            transition: opacity 0.5s ease-out; 
             perspective: 1000px; 
         }
 
@@ -202,7 +193,7 @@
             font-size: 4em; 
             font-weight: 900;
             text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: all 2s cubic-bezier(0.4, 0.2, 0.6, 0.8); 
+            transition: all 2s cubic-bezier(0.42, 0, 1.0, 1.0); 
             white-space: pre-wrap; 
             max-width: 90vw; 
             overflow: hidden; 
@@ -246,8 +237,10 @@
     </div>
 
     <script>
-        // 1. 祖師法語與多語言文案 (i18n Data)
-        const i18n = {
+        // 1. **優化後的 i18n 資料結構**：將固定界面文案和法語資料庫分離
+        
+        // A. 界面文案翻譯 (Translations)
+        const translations = {
             'zh-TW': {
                 langName: "繁體中文",
                 title: "煩惱消散器",
@@ -256,10 +249,6 @@
                 buttonText: "✨ 讓煩惱煙消雲散！ ✨",
                 dissolveMessage: "您的煩惱正在化為塵埃...",
                 proverbIntro: "⭐ 既然放下，便聽聽祖師的智慧之語：",
-                proverbs: [
-                    { zh: "境是道場，辱罵是真經。", source: "廣欽老和尚", explanation: "逆境與惡言都是修行的機會，應視為磨練心性的珍寶。" },
-                    { zh: "修行就是在修我們這忍耐性。", source: "廣欽老和尚", explanation: "所有順逆境都是在磨練忍辱波羅蜜的道場，能忍才能進步。" },
-                ]
             },
             'en': {
                 langName: "English",
@@ -269,28 +258,47 @@
                 buttonText: "✨ Let My Worries Dissolve! ✨",
                 dissolveMessage: "Your worries are turning into dust...",
                 proverbIntro: "⭐ Now that you've let go, listen to the wisdom of the masters:",
-                proverbs: [
-                    { zh: "The environment is the dojo, and insults are the true scriptures.", source: "Venerable Master Guang Qin", explanation: "Adversity and harsh words are opportunities for practice, and should be regarded as treasures that temper the mind." },
-                    { zh: "Spiritual practice is about cultivating our patience.", source: "Venerable Master Guang Qin", explanation: "All favorable and adverse situations are a practice ground for cultivating *kshanti-paramita* (patience); only by enduring can we progress." },
-                ]
             }
         };
 
-        let currentLang = 'zh-TW';
+        // B. 法語資料庫 (Proverbs Data) - 不再重複固定的界面文案
+        const proverbsData = [
+            { 
+                zh: "境是道場，辱罵是真經。", 
+                source: "廣欽老和尚", 
+                explanation_zh: "逆境與惡言都是修行的機會，應視為磨練心性的珍寶。",
+                explanation_en: "Adversity and harsh words are opportunities for practice, and should be regarded as treasures that temper the mind."
+            },
+            { 
+                zh: "修行就是在修我們這忍耐性。", 
+                source: "廣欽老和尚", 
+                explanation_zh: "所有順逆境都是在磨練忍辱波羅蜜的道場，能忍才能進步。",
+                explanation_en: "All favorable and adverse situations are a practice ground for cultivating *kshanti-paramita* (patience); only by enduring can we progress."
+            },
+            // 如果您有 100 句法語，只需在這個列表中增加 98 個物件即可，無需重複界面文案。
+        ];
+
+        let currentLang = 'zh-TW'; 
         
         // 2. 語言偵測與切換
         function detectAndSetLanguage() {
             const browserLang = navigator.language || navigator.userLanguage;
-            if (browserLang.toLowerCase().startsWith('en')) {
+            const langLower = browserLang.toLowerCase();
+
+            // 1. 如果是繁體中文 (zh-TW 或 zh-Hant)，設定為 'zh-TW'
+            if (langLower.startsWith('zh') && (langLower.includes('tw') || langLower.includes('hant'))) {
+                currentLang = 'zh-TW';
+
+            // 2. 如果是英文，設定為 'en'
+            } else if (langLower.startsWith('en')) {
                 currentLang = 'en';
-            } else if (browserLang.toLowerCase().startsWith('zh')) {
-                currentLang = (browserLang.toLowerCase().includes('tw') || browserLang.toLowerCase().includes('hant')) 
-                    ? 'zh-TW' : 'zh-TW'; // 繁體中文優先
+            
+            // 3. 其他所有情況 (非 zh-TW 也非 en) 預設為 'en'
             } else {
-                currentLang = 'en'; // 預設英文
+                currentLang = 'en'; // 其他語言預設為英文
             }
 
-            const langData = i18n[currentLang] || i18n['zh-TW'];
+            const langData = translations[currentLang] || translations['en']; 
             
             // Apply text content
             document.getElementById('title').textContent = langData.title;
@@ -299,7 +307,7 @@
             document.getElementById('dissolve-button').textContent = langData.buttonText;
             document.getElementById('proverb-intro').textContent = langData.proverbIntro;
             document.getElementById('dissolve-message-text').textContent = langData.dissolveMessage;
-            
+
             // Set the HTML lang attribute for better accessibility/SEO
             document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-Hant';
         }
@@ -311,7 +319,7 @@
             const resultElement = document.getElementById('result');
             const overlay = document.getElementById('dissolve-overlay');
             const dissolveMessageText = document.getElementById('dissolve-message-text');
-            const langData = i18n[currentLang] || i18n['zh-TW'];
+            const langData = translations[currentLang] || translations['en']; // 使用新的 translations 變數
             
             const worryText = inputElement.value.trim();
 
@@ -321,30 +329,33 @@
             }
 
             // --- 步驟 1: 準備動畫 ---
-            dissolveMessageText.textContent = worryText; // 顯示用戶輸入的文字
+            dissolveMessageText.textContent = worryText; 
             overlay.style.display = 'flex';
             resultElement.classList.remove('show');
             
-            // 確保 CSS transition 能被應用
             setTimeout(() => {
                 overlay.classList.add('dissolve-start');
             }, 50); 
 
-            // --- 步驟 2: 處理煩惱並顯示法語 (延遲 2 秒，與 CSS 動畫同步) ---
-            const animationDuration = 2000; // 2 秒
+            // --- 步驟 2: 處理煩惱並顯示法語 (延遲 4 秒) ---
+            const animationDuration = 2000; 
             setTimeout(() => {
                 // 清空輸入框 (煩惱已消散)
                 inputElement.value = '';
 
                 // 隨機選擇一則法語
-                const proverbs = langData.proverbs;
-                const randomIndex = Math.floor(Math.random() * proverbs.length);
-                const proverb = proverbs[randomIndex];
+                const randomIndex = Math.floor(Math.random() * proverbsData.length);
+                const proverb = proverbsData[randomIndex];
                 
-                // 顯示法語
-                document.getElementById('proverb-text').textContent = proverb.zh; // 法語本身保留中文原文
+                // 根據當前語言選擇正確的解釋鍵
+                const explanationKey = currentLang === 'zh-TW' ? 'explanation_zh' : 'explanation_en';
+                
+                // 顯示法語 (中文原文)
+                document.getElementById('proverb-text').textContent = proverb.zh; 
                 document.getElementById('proverb-source').textContent = '— ' + proverb.source;
-                document.getElementById('proverb-explanation').textContent = proverb.explanation;
+                
+                // 顯示解釋 (根據語系切換)
+                document.getElementById('proverb-explanation').textContent = proverb[explanationKey];
 
                 // --- 步驟 3: 結束動畫並顯示結果 ---
                 overlay.classList.remove('dissolve-start');
