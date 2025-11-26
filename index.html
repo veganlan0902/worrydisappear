@@ -1200,8 +1200,20 @@
             const overlay = document.getElementById('dissolve-overlay');
             const dissolveMessageText = document.getElementById('dissolve-message-text');
             const langData = translations[currentLang] || translations['en']; // 使用新的 translations 變數
-            
-            const worryText = inputElement.value.trim();
+         
+            const rawInput = inputElement.value;
+            const length = rawInput.length;
+
+            // --- 1. 客戶端輸入驗證 (長度檢查) ---
+            if (length > 100000) {               
+                alert(currentLang === 'en' ? 'length over 10000.' : '長度超過。');
+                return;
+            }
+
+            // --- 2. 核心輸入淨化 (XSS 防護) ---
+            // 模擬在伺服器端或提交前進行淨化
+            const safeInput = sanitizeInput(rawInput);
+            const worryText = safeInput;            
 
             if (worryText === '') {
                 alert(currentLang === 'en' ? 'Please write down your worry first.' : '請先寫下您的煩惱。');
@@ -1247,6 +1259,34 @@
                 resultElement.classList.add('show');
 
             }, animationDuration + 100); 
+        }
+
+        /**
+         * 核心淨化函數：將潛在的惡意 HTML 標籤轉碼為純文本。
+         * @param {string} text - 原始輸入文本。
+         * @returns {string} - 淨化後的安全文本。
+         */
+         function sanitizeInput(text) {
+            // 這是防止 XSS (跨站點腳本) 的關鍵步驟。
+            // 我們將 < 和 > 替換為 HTML 實體，這樣瀏覽器就不會將它們解析為標籤。
+            let sanitized = text;
+
+            // 1. 轉義所有 < 字符
+            sanitized = sanitized.replace(/</g, "&lt;");
+            
+            // 2. 轉義所有 > 字符
+            sanitized = sanitized.replace(/>/g, "&gt;");
+
+            // 3. 轉義 & 字符 (避免雙重轉義問題)
+            sanitized = sanitized.replace(/&/g, "&amp;");
+
+            // 4. (可選) 移除開頭和結尾的空白
+            sanitized = sanitized.trim();
+            
+            // 注意：在真實的後端應用程式中，您應該使用專門的函式庫 (如 OWASP Antisamy, DOMPurify) 進行更全面的淨化，
+            // 但此基礎替換已能有效防禦簡單的 XSS 攻擊。
+
+            return sanitized;
         }
 
         // 4. 事件監聽器
